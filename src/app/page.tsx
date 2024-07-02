@@ -1,9 +1,6 @@
-import { MaintLayout } from "@/components";
 
-export default function Home() {
-  return (
-    <MaintLayout>
-      {'Контент страницы'}
-    </MaintLayout>
-  );
+
+export default async function Home() {
+
+  return <>home page</>
 }

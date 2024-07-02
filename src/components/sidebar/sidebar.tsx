@@ -47,7 +47,7 @@ const menuGroups = [
         ),
         label: "Дашборд",
         route: "#",
-        children: [{ label: "eCommerce", route: "/" }],
+        children: [{ label: "Сайт", route: "/" }, { label: 'Статьи блога', route: "/admin/posts"}],
       },
       {
         icon: (

@@ -3,7 +3,7 @@ import React, { PropsWithChildren } from 'react';
 import { Sidebar } from '@/components';
 import { Header } from '@/components';
 
-export const MaintLayout: React.FC<PropsWithChildren> = ({ children }) => {
+export const AdmintLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar sidebarOpen={false} />

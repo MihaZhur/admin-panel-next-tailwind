@@ -1,1 +1,1 @@
-export { MaintLayout } from './main-layout';
+export { AdmintLayout } from './admin-layout';
