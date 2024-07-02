@@ -23,7 +23,7 @@
 1. **Клонируйте репозиторий:**
 
    ```bash
-   git clone https://github.com/yourusername/admin-panel-template.git
+   git clone https://github.com/MihaZhur/admin-panel-next-tailwind.git
    cd admin-panel-template
 
 2. **Установите зависимости:**
