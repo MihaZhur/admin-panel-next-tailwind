@@ -2,7 +2,7 @@
 'use client'
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-export default function Posts() {
+export default function Edit() {
     const [value, setValue] = useState('')
     const router = useRouter()
     const handleCreatePost = async (e: any) => {
