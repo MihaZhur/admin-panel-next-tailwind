@@ -1,13 +1,23 @@
 import Link from 'next/link';
 import { Pagination } from '../components/pagination';
 import { Table } from '../components/table';
+import prisma from '@/lib/db';
 
 const head = ['Название стаьи', 'id', '', 'Удалить'];
 
-export default async function Posts() {
-    const staticData = await fetch(`http://localhost:3000/api/posts/`, { cache: 'no-store' });
+export default async function Posts({
+    searchParams,
+}: {
+    searchParams?: {
+        query?: string;
+        page?: string;
+    };
+}) {
+    const currentPage = Number(searchParams?.page) || 1;
+    const staticData = await fetch(`http://localhost:3000/api/posts/?page=${currentPage}`, { cache: 'no-store' });
 
-    const { posts } = await staticData.json();
+    const data = await staticData.json();
+    const { posts, totalPages } = data;
 
     return (
         <>
@@ -32,7 +42,12 @@ export default async function Posts() {
                         </div>
 
                         <Table data={{ head, row: posts }} />
-                        <Pagination pageCount={10} />
+                        {totalPages > 1 && (
+                            <Pagination
+                                forcePage={currentPage - 1}
+                                pageCount={totalPages}
+                            />
+                        )}
                     </div>
                 </div>
             </section>

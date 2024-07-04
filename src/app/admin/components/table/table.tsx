@@ -1,4 +1,7 @@
+'use client';
+import { HttpClient } from '@/services/http-client.service';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 interface Row {
     id: number | string;
@@ -12,6 +15,11 @@ interface Table {
     };
 }
 export const Table: React.FC<Table> = ({ data }) => {
+    const router = useRouter();
+    const handleDeletePost = async (id: string | number) => {
+        const response = await HttpClient.delete(`/posts/${id}`);
+        router.refresh();
+    };
     return (
         <div className="block w-full overflow-x-auto">
             <table className="items-center bg-transparent w-full border-collapse ">
@@ -42,7 +50,10 @@ export const Table: React.FC<Table> = ({ data }) => {
                                 <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-m whitespace-nowrap p-4">
                                     <Link href={'/admin/posts/edit/' + post.id}>Редактировать</Link>
                                 </td>
-                                <td className="border-t-0 px-6 align-center border-l-0 border-r-0 text-m whitespace-nowrap p-4">
+                                <td
+                                    onClick={() => handleDeletePost(post.id)}
+                                    className="border-t-0 cursor-pointer px-6 align-center border-l-0 border-r-0 text-m whitespace-nowrap p-4"
+                                >
                                     Удалить
                                 </td>
                             </tr>
