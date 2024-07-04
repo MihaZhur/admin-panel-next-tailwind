@@ -8,6 +8,8 @@ export default async function EditPost({ params }: { params: { id: string } }) {
         <FormPost
             action={updatedPostAction.bind(null, params.id)}
             initialValues={{ title: data.title }}
+            btnText="Сохранить"
+            btnTextLoading="Сохраняется"
         />
     );
 }

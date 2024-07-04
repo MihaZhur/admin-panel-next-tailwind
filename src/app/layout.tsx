@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from '@/providers/provider';
 import { NextNProgressClient } from '@/components';
+import { NextUIProvider } from '@nextui-org/system';
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -13,7 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="ru">
             <body>
                 <NextNProgressClient />
-                <Providers>{children}</Providers>
+                <Providers>
+                    <NextUIProvider>{children}</NextUIProvider>
+                </Providers>
             </body>
         </html>
     );

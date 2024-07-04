@@ -3,6 +3,8 @@ import { HttpClient } from '@/services/http-client.service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { Modal } from '../modal';
+import { useDisclosure } from '@nextui-org/react';
 interface Row {
     id: number | string;
     title: string;
@@ -16,9 +18,13 @@ interface Table {
 }
 export const Table: React.FC<Table> = ({ data }) => {
     const router = useRouter();
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const handleDeletePost = async (id: string | number) => {
-        const response = await HttpClient.delete(`/posts/${id}`);
-        router.refresh();
+        console.log(234);
+        
+        onOpen();
+        // await HttpClient.delete(`/posts/${id}`);
+        // router.refresh();
     };
     return (
         <div className="block w-full overflow-x-auto">
@@ -61,6 +67,10 @@ export const Table: React.FC<Table> = ({ data }) => {
                     })}
                 </tbody>
             </table>
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+            />
         </div>
     );
 };
