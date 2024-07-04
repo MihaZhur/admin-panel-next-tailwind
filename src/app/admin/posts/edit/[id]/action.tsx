@@ -4,13 +4,18 @@ import { FormState, fromErrorToFormState } from '@/utils/from-to-error-to-form-s
 import { toFormState } from '@/utils/to-from-state';
 
 export const updatedPostAction = async (id: string, formState: FormState, formData: FormData) => {
+    console.log('updated action');
     try {
         const postSchema = z.object({
             title: z.string().min(6),
         });
+        console.log(formData.get('title'));
+
         const data = {
             title: formData.get('title'),
         };
+        console.log(data);
+
         const validatedFields = postSchema.parse({ ...data });
 
         console.log(data);

@@ -1,6 +1,6 @@
 'use server';
 import { z } from 'zod';
-import { FormState, fromErrorToFormState } from '../../../../utils/from-to-error-to-form-state';
+import { FormState, fromErrorToFormState } from '@/utils/from-to-error-to-form-state';
 import { toFormState } from '@/utils/to-from-state';
 
 export const cretePostAction = async (formState: FormState, formData: FormData) => {

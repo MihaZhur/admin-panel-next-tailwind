@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { Pagination } from '../components/pagination';
 import { Table } from '../components/table';
-import prisma from '@/lib/db';
 
 const head = ['Название стаьи', 'id', '', 'Удалить'];
 
