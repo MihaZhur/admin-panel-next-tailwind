@@ -1,35 +1,34 @@
 'use client';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 import { useGetPost } from '@/hooks/useGetPost';
-import { useUpdatePost } from '@/hooks/useUpdatePost';
+import { useFormState } from 'react-dom';
+import { updatedPostAction } from './action';
+import { useFormReset } from '@/hooks/useResetFormState';
+import { ButtonSubmit, FieldError } from '@/app/admin/components';
+import { EMPTY_FORM_STATE } from '@/utils/from-to-error-to-form-state';
 
 export default function EditPost() {
     const { id } = useParams<{ id: string }>();
-    const router = useRouter();
-    const { data } = useGetPost(id);
-    const [value, setValue] = useState('');
-    const { mutateAsync: updatePost } = useUpdatePost();
-
-    const handleUpdatePost = async (e: any) => {
-        e.preventDefault();
-        await updatePost({ id: data?.id as string, title: value });
-        router.push(`/admin/posts`);
-        router.refresh();
-    };
+    const { data, isLoading } = useGetPost(id);
+    const [formState, action] = useFormState(updatedPostAction.bind(null, id), EMPTY_FORM_STATE);
+    const formRef = useFormReset(formState, '/admin/posts');
 
     useEffect(() => {
-        if (data?.title) {
-            setValue(data?.title);
+        if (formRef.current && data) {
+            const titleField = formRef.current.title as unknown as HTMLTextAreaElement;
+            titleField.value = data.title;
         }
-    }, [data]);
+    }, [data, formRef]);
 
     return (
         <>
+            <>{isLoading && 'Загрузка поста...'}</>
             <form
                 className=" mx-auto"
                 method="POST"
-                onSubmit={handleUpdatePost}
+                action={action}
+                ref={formRef}
             >
                 <label
                     htmlFor="title"
@@ -38,19 +37,20 @@ export default function EditPost() {
                     Название поста
                 </label>
                 <textarea
-                    onChange={(e) => setValue(e.target.value)}
-                    value={value}
                     id="title"
+                    name="title"
                     rows={4}
                     className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Leave a comment..."
                 ></textarea>
-                <button
-                    type="submit"
-                    className="text-white mt-3 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                >
-                    Сохранить
-                </button>
+                <FieldError
+                    formState={formState}
+                    name="title"
+                />
+                <ButtonSubmit
+                    label="Сохранить"
+                    loading="Сохранение запись..."
+                />
             </form>
         </>
     );
