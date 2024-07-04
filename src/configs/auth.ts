@@ -8,6 +8,9 @@ const admin = {
     role: 'ADMIN',
 };
 export const authConfig: AuthOptions = {
+    session: {
+        strategy: 'jwt',
+    },
     providers: [
         Credentials({
             // The name to display on the sign in form (e.g. "Sign in with...")
@@ -57,5 +60,30 @@ export const authConfig: AuthOptions = {
     ],
     pages: {
         signIn: '/signin/',
+    },
+    callbacks: {
+        session: ({ session, token }) => {
+            console.log('Session Callback', { session, token });
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: token.id,
+                    role: token.role,
+                },
+            };
+        },
+        jwt: ({ token, user }) => {
+            console.log('JWT Callback', { token, user });
+            if (user) {
+                const u = user as unknown as any;
+                return {
+                    ...token,
+                    id: u.id,
+                    role: u.role,
+                };
+            }
+            return token;
+        },
     },
 };
