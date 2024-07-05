@@ -39,7 +39,6 @@ export default async function Posts({
                                 </div>
                             </div>
                         </div>
-
                         <Table data={{ head, row: posts }} />
                         {totalPages > 1 && (
                             <Pagination

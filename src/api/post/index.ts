@@ -14,6 +14,11 @@ class PostApi {
         const response = await HttpClient.patch<Post>(`/posts/${id}`, updatedPost);
         return response.data;
     }
+
+    async deleteById(id: string | number) {
+        const response = await HttpClient.delete(`/posts/${id}`);
+        return response.data;
+    }
 }
 
 export const postApi = new PostApi();

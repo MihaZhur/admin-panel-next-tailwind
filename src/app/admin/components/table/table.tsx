@@ -1,10 +1,11 @@
 'use client';
-import { HttpClient } from '@/services/http-client.service';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal } from '../modal';
 import { useDisclosure } from '@nextui-org/react';
+import { useDeletePost } from '@/hooks/admin/useDeletePost';
+
 interface Row {
     id: number | string;
     title: string;
@@ -19,12 +20,22 @@ interface Table {
 export const Table: React.FC<Table> = ({ data }) => {
     const router = useRouter();
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const { mutateAsync, isPending } = useDeletePost();
+    const [currentPost, setCurrentPost] = useState<Row | null>(null);
     const handleDeletePost = async (id: string | number) => {
-        console.log(234);
-        
+        const findPost = data.row.find((post) => post.id === id);
+        if (findPost) {
+            setCurrentPost(findPost);
+        }
         onOpen();
-        // await HttpClient.delete(`/posts/${id}`);
-        // router.refresh();
+    };
+    const handleConfirm = async () => {
+        if (currentPost) {
+            await mutateAsync(currentPost?.id);
+        }
+        onClose();
+        router.refresh();
     };
     return (
         <div className="block w-full overflow-x-auto">
@@ -68,9 +79,14 @@ export const Table: React.FC<Table> = ({ data }) => {
                 </tbody>
             </table>
             <Modal
+                title={`Вы хотите удалить этот пост?`}
                 isOpen={isOpen}
                 onClose={onClose}
-            />
+                onConfirm={handleConfirm}
+                textClose="Отмена"
+                textConfirm="Удалить"
+                isLoadingConfirm={isPending}
+            ></Modal>
         </div>
     );
 };
