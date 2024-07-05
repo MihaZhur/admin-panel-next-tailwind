@@ -10,6 +10,7 @@ export default async function EditPost({ params }: { params: { id: string } }) {
             initialValues={{ title: data.title }}
             btnText="Сохранить"
             btnTextLoading="Сохраняется"
+            tostText="Пост успешно обновлен"
         />
     );
 }

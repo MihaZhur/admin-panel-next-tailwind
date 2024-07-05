@@ -1,19 +1,25 @@
-import {
-    Modal as ModalComponent,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    Button,
-    useDisclosure,
-} from '@nextui-org/react';
-import React from 'react';
+import { Modal as ModalComponent, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from '@nextui-org/react';
+import React, { PropsWithChildren } from 'react';
 interface Props {
     isOpen: boolean;
     onClose: () => void;
+    onConfirm: () => void;
+    textConfirm?: string;
+    textClose?: string;
+    title?: string;
+    isLoadingConfirm?: boolean;
 }
 
-export const Modal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const Modal: React.FC<PropsWithChildren<Props>> = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    textConfirm = 'Сохранить',
+    textClose = 'Отмена',
+    title,
+    children,
+    isLoadingConfirm,
+}) => {
     return (
         <ModalComponent
             backdrop={'blur'}
@@ -23,23 +29,22 @@ export const Modal: React.FC<Props> = ({ isOpen, onClose }) => {
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1">Modal Title</ModalHeader>
-                        <ModalBody>
-                            <p> were</p>
-                        </ModalBody>
+                        <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
+                        <ModalBody>{children}</ModalBody>
                         <ModalFooter>
                             <Button
-                                color="danger"
+                                color="primary"
+                                onPress={onConfirm}
+                                isLoading={isLoadingConfirm}
+                            >
+                                {textConfirm}
+                            </Button>
+                            <Button
+                                color="default"
                                 variant="light"
                                 onPress={onClose}
                             >
-                                Close
-                            </Button>
-                            <Button
-                                color="primary"
-                                onPress={onClose}
-                            >
-                                Action
+                                {textClose}
                             </Button>
                         </ModalFooter>
                     </>

@@ -1,3 +1,5 @@
+import prisma from '@/lib/db';
+import { compare } from 'bcrypt';
 import type { AuthOptions, User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 const admin = {
@@ -33,28 +35,32 @@ export const authConfig: AuthOptions = {
                     requered: true,
                 },
             },
-            async authorize(credentials, req) {
+            async authorize(credentials) {
                 if (!credentials?.email || !credentials.password) {
                     return null;
                 }
-                // Add logic here to look up the user from the credentials supplied
 
-                if (admin.password === credentials.password && credentials.email === admin.email) {
-                    // Any object returned will be saved in `user` property of the JWT
-                    const { id, email, name, role } = admin;
+                const user = await prisma.user.findUnique({
+                    where: {
+                        email: credentials.email,
+                    },
+                });
 
-                    return {
-                        id,
-                        email,
-                        name,
-                        role,
-                    } as User;
-                } else {
-                    // If you return null then an error will be displayed advising the user to check their details.
+                if (!user) {
                     return null;
-
-                    // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
                 }
+
+                const isPasswordValid = compare(credentials.password, user.password ?? '');
+
+                if (!isPasswordValid) {
+                    return null;
+                }
+                return {
+                    id: user.id + '',
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                };
             },
         }),
     ],
