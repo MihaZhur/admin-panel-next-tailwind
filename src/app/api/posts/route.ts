@@ -1,5 +1,4 @@
 import prisma from '@/lib/db';
-import { HttpServer } from '@/services/http-server.service';
 import { NextResponse, NextRequest } from 'next/server';
 interface Post {
     id: number;

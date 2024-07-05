@@ -9,7 +9,8 @@ import { User } from '@prisma/client';
 export async function middleware(request: NextRequest) {
     const token = await getToken({ req: request });
     const user: User | null = token as User;
-    if (user.role !== 'ADMIN' && user.role !== 'MANAGER') {
+
+    if (user && user.role !== 'ADMIN' && user.role !== 'MANAGER') {
         return NextResponse.redirect(new URL('/signin?error=Please login first to access this route', request.url));
     }
 }

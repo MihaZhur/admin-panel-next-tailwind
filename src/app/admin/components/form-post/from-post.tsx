@@ -40,9 +40,9 @@ export const FormPost: React.FC<Props> = ({
             setIsloading(true);
             await actionFn(data);
             setIsloading(false);
-            showToast('success', tostText);
             router.push(`/admin/posts`);
             router.refresh();
+            showToast('success', tostText);
         } catch (err: any) {
             const message = err?.response?.data?.message;
             console.error(err);

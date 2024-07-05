@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { Sidebar } from '@/components';
+import { GoBack, Sidebar } from '@/components';
 import { Header } from '@/components';
 export const AdmintLayout: React.FC<PropsWithChildren> = ({ children }) => {
     return (

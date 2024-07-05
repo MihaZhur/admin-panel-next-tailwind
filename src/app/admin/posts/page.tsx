@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Pagination } from '../components/pagination';
-import { Table } from '../components/table';
+import { TablePosts } from '../components';
+import { PlusIcon } from '@heroicons/react/20/solid';
 
 const head = ['Название стаьи', 'id', '', 'Удалить'];
 
@@ -31,21 +31,20 @@ export default async function Posts({
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
                                     <Link
                                         href={'/admin/posts/create'}
-                                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                        className="rounded-md flex items-center gap-3 justify-center max-w-36 ml-auto bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                         type="button"
                                     >
                                         Создать пост
+                                        <PlusIcon className=" w-5" />
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                        <Table data={{ head, row: posts }} />
-                        {totalPages > 1 && (
-                            <Pagination
-                                forcePage={currentPage - 1}
-                                pageCount={totalPages}
-                            />
-                        )}
+                        <TablePosts
+                            posts={posts}
+                            currentPage={currentPage - 1}
+                            total={totalPages}
+                        />
                     </div>
                 </div>
             </section>
