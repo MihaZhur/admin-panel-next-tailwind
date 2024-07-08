@@ -15,6 +15,7 @@ model User {
   password String?
   posts    Post[]
   profile  Profile?
+  
 }
 
 model Profile {

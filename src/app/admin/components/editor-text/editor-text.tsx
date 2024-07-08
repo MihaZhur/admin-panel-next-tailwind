@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useMemo } from 'react';
 import SimpleMDE from 'react-simplemde-editor';
 import { Control, Controller } from 'react-hook-form';
 import 'easymde/dist/easymde.min.css';
@@ -11,17 +11,26 @@ interface EditorTextProps {
 }
 
 export const EditorText: React.FC<EditorTextProps> = ({ control, name, defaultValue = '' }) => {
+    const autofocusNoSpellcheckerOptions = useMemo(() => {
+        return {
+            autofocus: true,
+            spellChecker: false,
+        };
+    }, []);
     return (
         <Controller
             control={control}
             name={name}
             defaultValue={defaultValue}
-            render={({ field: { onChange, value } }) => (
-                <SimpleMDE
-                    value={value}
-                    onChange={onChange}
-                />
-            )}
+            render={({ field: { onChange, value } }) => {
+                return (
+                    <SimpleMDE
+                        options={autofocusNoSpellcheckerOptions}
+                        value={value}
+                        onChange={onChange}
+                    />
+                );
+            }}
         />
     );
 };

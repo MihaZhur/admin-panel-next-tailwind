@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { TablePosts } from '../components';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { PlusIcon, UserPlusIcon } from '@heroicons/react/20/solid';
+import { TableUsers } from '../components/table-users/table-users';
+import prisma from '@/lib/db';
 
-const head = ['Название стаьи', 'id', '', 'Удалить'];
-
-export default async function Posts({
+const LIMIT_ITEM_PAGE = 10;
+export default async function Users({
     searchParams,
 }: {
     searchParams?: {
@@ -13,10 +13,15 @@ export default async function Posts({
     };
 }) {
     const currentPage = Number(searchParams?.page) || 1;
-    const staticData = await fetch(`http://localhost:3000/api/posts/?page=${currentPage}`, { cache: 'no-store' });
+    const skip = (currentPage - 1) * LIMIT_ITEM_PAGE;
+    const users = await prisma.user.findMany({
+        skip: skip,
+        take: LIMIT_ITEM_PAGE,
+    });
 
-    const data = await staticData.json();
-    const { posts, totalPages } = data;
+    const total = await prisma.user.count();
+
+    const totalPages = Math.ceil(total / LIMIT_ITEM_PAGE);
 
     return (
         <>
@@ -26,22 +31,24 @@ export default async function Posts({
                         <div className="rounded-t mb-0 px-4 py-3 border-0">
                             <div className="flex flex-wrap items-center">
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1">
-                                    <h3 className="font-semibold text-lg text-blueGray-700 dark:text-white">Статьи</h3>
+                                    <h3 className="font-semibold text-lg text-blueGray-700 dark:text-white">
+                                        Пользователи
+                                    </h3>
                                 </div>
                                 <div className="relative w-full px-4 max-w-full flex-grow flex-1 text-right">
                                     <Link
                                         href={'/admin/posts/create'}
-                                        className="rounded-md  flex items-center gap-3 justify-center max-w-36 ml-auto bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                        className="rounded-md  flex items-center gap-3 justify-center max-w-54 ml-auto bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                         type="button"
                                     >
-                                        Создать пост
-                                        <PlusIcon className=" w-5" />
+                                        Создать пользователя
+                                        <UserPlusIcon className=" w-5" />
                                     </Link>
                                 </div>
                             </div>
                         </div>
-                        <TablePosts
-                            posts={posts}
+                        <TableUsers
+                            users={users}
                             currentPage={currentPage}
                             total={totalPages}
                         />
