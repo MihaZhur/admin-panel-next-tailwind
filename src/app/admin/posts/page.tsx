@@ -42,7 +42,7 @@ export default async function Posts({
                         </div>
                         <TablePosts
                             posts={posts}
-                            currentPage={currentPage - 1}
+                            currentPage={currentPage}
                             total={totalPages}
                         />
                     </div>

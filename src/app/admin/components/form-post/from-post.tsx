@@ -1,19 +1,23 @@
 'use client';
-import { ButtonSubmit, FieldError } from '@/app/admin/components/';
+import { EditorText, FieldError } from '@/app/admin/components/';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
+import React, { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@nextui-org/react';
+import { Button, Input, Switch } from '@nextui-org/react';
 import { showToast } from '@/utils/show-toast';
 export const postSchema = z.object({
     title: z.string().min(2, { message: 'Слишком короткое название поста' }),
+    content: z.string(),
+    published: z.boolean(),
 });
 interface Props {
     action: any;
     initialValues?: {
         title: string;
+        content: string;
+        published: boolean;
     };
     btnText?: string;
     btnTextLoading?: string;
@@ -26,28 +30,29 @@ export const FormPost: React.FC<Props> = ({
     tostText = 'Пост успешно создан',
 }) => {
     const router = useRouter();
-    const [isLoading, setIsloading] = useState(false);
+    const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors, isDirty },
     } = useForm({
         defaultValues: initialValues,
         resolver: zodResolver(postSchema),
     });
     const onSubmit = async (data: any) => {
-        try {
-            setIsloading(true);
-            await actionFn(data);
-            setIsloading(false);
-            router.push(`/admin/posts`);
-            router.refresh();
-            showToast('success', tostText);
-        } catch (err: any) {
-            const message = err?.response?.data?.message;
-            console.error(err);
-            showToast('error', message);
-        }
+        startIsPendingCreatePost(async () => {
+            try {
+                await actionFn(data);
+                router.push(`/admin/posts`);
+                router.refresh();
+                showToast('success', tostText);
+            } catch (err: any) {
+                const message = err?.response?.data?.message;
+                console.error(err);
+                showToast('error', message);
+            }
+        });
     };
 
     return (
@@ -56,27 +61,48 @@ export const FormPost: React.FC<Props> = ({
                 className=" mx-auto"
                 onSubmit={handleSubmit(onSubmit)}
             >
+                <Switch
+                    {...register('published')}
+                    color="success"
+                    name="published"
+                    size="sm"
+                    className="mb-3"
+                >
+                    Опубликовать
+                </Switch>
                 <label
                     htmlFor="title"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                     Название поста
                 </label>
-                <textarea
+                <Input
                     {...register('title')}
+                    type="text"
                     id="title"
-                    rows={4}
-                    className="block p-2.5 w-full text-sm mb-3 text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Leave a comment..."
-                ></textarea>
+                    label="Название поста"
+                    className="mb-3"
+                    color={errors.title?.message ? 'danger' : 'default'}
+                />
                 <FieldError error={errors.title?.message} />
+                <label
+                    htmlFor="content"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                >
+                    Контент поста
+                </label>
+                <EditorText
+                    control={control}
+                    name="content"
+                    defaultValue={initialValues?.content ?? ''}
+                />
 
                 <Button
                     type="submit"
                     color="primary"
                     variant="solid"
                     isDisabled={!isDirty}
-                    isLoading={isLoading}
+                    isLoading={isPendingCreatePost}
                 >
                     {btnText}
                 </Button>

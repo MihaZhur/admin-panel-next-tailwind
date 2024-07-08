@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Table,
     TableHeader,
@@ -17,6 +17,7 @@ import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
+import { useCreateQueryString } from '@/hooks/useCreateQueryString';
 
 interface Props {
     posts: Post[];
@@ -25,11 +26,12 @@ interface Props {
 }
 
 export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
-    const [page, setPage] = useState(currentPage);
+    const page = useMemo(() => currentPage, [currentPage]);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const createQueryString = useCreateQueryString(searchParams);
 
     const { mutateAsync, isPending } = useDeletePost();
     const [currentPost, setCurrentPost] = useState<Post | null>(null);
@@ -47,27 +49,26 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
         onClose();
         router.refresh();
     };
-    const createQueryString = useCallback(
-        (name: string, value: string) => {
-            const params = new URLSearchParams(searchParams.toString());
-            params.set(name, value);
-            return params.toString();
-        },
-        [searchParams],
-    );
 
     const handleChngePage = (page: number) => {
-        console.log(page);
         router.push(pathname + '?' + createQueryString('page', String(page)));
         router.refresh();
-        setPage(currentPage);
     };
     const generateColumn = (post: Post, columnKey: any) => {
         switch (columnKey) {
             case 'update':
                 return <Link href={'/admin/posts/edit/' + post.id}>Редактировать</Link>;
             case 'delete':
-                return <Button onClick={() => handleDeletePost(post.id)}>Удалить</Button>;
+                return (
+                    <Button
+                        color="danger"
+                        variant="bordered"
+                        size="sm"
+                        onClick={() => handleDeletePost(post.id)}
+                    >
+                        Удалить
+                    </Button>
+                );
             case 'published':
                 return post.published ? 'Опубликован' : 'Не опубликован';
         }
