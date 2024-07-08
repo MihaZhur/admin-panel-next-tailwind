@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
+import { rolesMap } from '@/constans/roles-map';
 
 interface Props {
     users: User[];
@@ -69,8 +70,8 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
                         Удалить
                     </Button>
                 );
-            // case 'published':
-            //     return post?.activeted ? 'Активирован' : 'Не активирован';
+            case 'role':
+                return rolesMap[post?.role];
         }
         return getKeyValue(post, columnKey);
     };
@@ -98,7 +99,7 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
                 <TableHeader>
                     <TableColumn key="name">Имя</TableColumn>
                     <TableColumn key="id">ID</TableColumn>
-                    {/* <TableColumn key="published">Статус</TableColumn> */}
+                    <TableColumn key="role">Роль</TableColumn>
                     <TableColumn key="update">{''}</TableColumn>
                     <TableColumn key="delete">{''}</TableColumn>
                 </TableHeader>

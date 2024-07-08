@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { TablePosts } from '../components';
 import { PlusIcon } from '@heroicons/react/20/solid';
+import prisma from '@/lib/db';
 
-const head = ['Название стаьи', 'id', '', 'Удалить'];
-
+const LIMIT_ITEM_PAGE = 10;
 export default async function Posts({
     searchParams,
 }: {
@@ -13,10 +13,15 @@ export default async function Posts({
     };
 }) {
     const currentPage = Number(searchParams?.page) || 1;
-    const staticData = await fetch(`http://localhost:3000/api/posts/?page=${currentPage}`, { cache: 'no-store' });
+    const skip = (currentPage - 1) * LIMIT_ITEM_PAGE;
+    const posts = await prisma.post.findMany({
+        skip: skip,
+        take: LIMIT_ITEM_PAGE,
+    });
 
-    const data = await staticData.json();
-    const { posts, totalPages } = data;
+    const total = await prisma.post.count();
+
+    const totalPages = Math.ceil(total / LIMIT_ITEM_PAGE);
 
     return (
         <>

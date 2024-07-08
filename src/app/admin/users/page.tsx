@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { PlusIcon, UserPlusIcon } from '@heroicons/react/20/solid';
+import { UserPlusIcon } from '@heroicons/react/20/solid';
 import { TableUsers } from '../components/table-users/table-users';
 import prisma from '@/lib/db';
 

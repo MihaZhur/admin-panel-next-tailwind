@@ -37,6 +37,7 @@ export const menuGroups = [
                 ),
                 label: 'Пользователи',
                 route: '/admin/users',
+                private: ['ADMIN'],
             },
             {
                 icon: (
