@@ -8,6 +8,7 @@ import { SidebarItem } from '@/components/sidebar';
 import { ClickOutside } from '@/components/sidebar';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { menuGroups } from '@/constans/menu-admin-panel';
+import { useSession } from 'next-auth/react';
 
 interface SidebarProps {
     sidebarOpen: boolean;
@@ -16,14 +17,15 @@ interface SidebarProps {
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     const pathname = usePathname();
+
+    const session = useSession();
+    const user = session?.data?.user;
     const [pageName, setPageName] = useLocalStorage('selectedMenu', 'dashboard');
 
     return (
         <ClickOutside onClick={() => setSidebarOpen?.(false)}>
             <aside
-                className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
-                    sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* <!-- SIDEBAR HEADER --> */}
                 <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
@@ -67,14 +69,19 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">{group.name}</h3>
 
                                 <ul className="mb-6 flex flex-col gap-1.5">
-                                    {group.menuItems.map((menuItem, menuIndex) => (
-                                        <SidebarItem
-                                            key={menuIndex}
-                                            item={menuItem}
-                                            pageName={pageName}
-                                            setPageName={setPageName}
-                                        />
-                                    ))}
+                                    {group.menuItems.map((menuItem, menuIndex) => {
+                                        if (menuItem?.private?.some((role) => role !== session.data?.user.role)) {
+                                            return null;
+                                        }
+                                        return (
+                                            <SidebarItem
+                                                key={menuIndex}
+                                                item={menuItem}
+                                                pageName={pageName}
+                                                setPageName={setPageName}
+                                            />
+                                        );
+                                    })}
                                 </ul>
                             </div>
                         ))}

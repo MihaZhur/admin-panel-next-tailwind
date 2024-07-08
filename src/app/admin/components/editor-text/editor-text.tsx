@@ -11,7 +11,7 @@ interface EditorTextProps {
 }
 
 export const EditorText: React.FC<EditorTextProps> = ({ control, name, defaultValue = '' }) => {
-    const autofocusNoSpellcheckerOptions = useMemo(() => {
+    const autofocusNoSpellcheckerOptions: EasyMDE.Options = useMemo(() => {
         return {
             autofocus: true,
             spellChecker: false,
@@ -28,6 +28,10 @@ export const EditorText: React.FC<EditorTextProps> = ({ control, name, defaultVa
                         options={autofocusNoSpellcheckerOptions}
                         value={value}
                         onChange={onChange}
+                        className="dark:bg-slate-700"
+                        textareaProps={{
+                            className: 'dark:bg-slate-700',
+                        }}
                     />
                 );
             }}

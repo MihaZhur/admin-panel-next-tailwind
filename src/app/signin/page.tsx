@@ -8,21 +8,23 @@ export default function Login() {
     const router = useRouter();
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
-        event.preventDefault();
+        try {
+            event.preventDefault();
 
-        const formData = new FormData(event.currentTarget);
+            const formData = new FormData(event.currentTarget);
 
-        const res = await signIn('credentials', {
-            email: formData.get('email'),
-            password: formData.get('password'),
-            redirect: false,
-        });
+            const res = await signIn('credentials', {
+                email: formData.get('email'),
+                password: formData.get('password'),
+                redirect: false,
+            });
 
-        if (res && !res.error) {
-            router.push('/admin');
-        } else {
-            console.log(res);
-        }
+            if (res && !res.error) {
+                router.push('/admin');
+            } else {
+                console.log(res);
+            }
+        } catch (err) {}
     };
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-10">

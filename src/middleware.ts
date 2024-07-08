@@ -1,18 +1,18 @@
-export { default } from 'next-auth/middleware';
-
-import { getToken } from 'next-auth/jwt';
-
+// / Ref: https://next-auth.js.org/configuration/nextjs#advanced-usage
+import { withAuth, NextRequestWithAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { User } from '@prisma/client';
 
-export async function middleware(request: NextRequest) {
-    const token = await getToken({ req: request });
-    const user: User | null = token as User;
-
-    if (user && user.role !== 'ADMIN' && user.role !== 'MANAGER') {
-        return NextResponse.redirect(new URL('/signin?error=Please login first to access this route', request.url));
-    }
-}
+export default withAuth(
+    function middleware(request: NextRequestWithAuth) {
+        if (request.nextUrl.pathname.startsWith('/admin') && request.nextauth.token?.role === 'USER') {
+            return NextResponse.rewrite(new URL('/profile', request.url));
+        }
+    },
+    {
+        callbacks: {
+            authorized: ({ token }) => !!token,
+        },
+    },
+);
 
 export const config = { matcher: ['/admin/:path*', '/admin'] };
