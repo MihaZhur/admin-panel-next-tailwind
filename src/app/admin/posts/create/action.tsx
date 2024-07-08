@@ -1,16 +1,14 @@
 'use server';
-import { z } from 'zod';
-import { FormState, fromErrorToFormState } from '@/utils/from-to-error-to-form-state';
-import { toFormState } from '@/utils/to-from-state';
+import prisma from '@/lib/db';
 
-export const cretePostAction = async (formState: FormState) => {
+export const cretePostAction = async (formState: any) => {
     try {
-        await fetch('http://localhost:3000/api/posts', {
-            method: 'POST',
-            body: JSON.stringify({ ...formState }),
+        const postData = await prisma.post.create({
+            data: formState,
         });
-        return toFormState('SUCCESS', 'Message created');
-    } catch (error) {
-        return fromErrorToFormState(error);
+        return { message: 'Пост успешно создан!', data: postData };
+    } catch (error: any) {
+        const message = error.message;
+        return message ? message : 'Неизвестная ошибка';
     }
 };

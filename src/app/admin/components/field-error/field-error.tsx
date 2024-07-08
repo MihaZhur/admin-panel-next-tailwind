@@ -4,5 +4,5 @@ interface Props {
 }
 
 export const FieldError: React.FC<Props> = ({ error }) => {
-    return error && <span className="text-xs text-red-400">{error}</span>;
+    return error && <span className="text-xs block mb-3 text-red">{error}</span>;
 };

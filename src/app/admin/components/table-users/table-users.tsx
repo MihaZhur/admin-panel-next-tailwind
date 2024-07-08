@@ -12,7 +12,7 @@ import {
     Button,
     useDisclosure,
 } from '@nextui-org/react';
-import { Post } from '@prisma/client';
+import { User } from '@prisma/client';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDeletePost } from '@/hooks/admin/useDeletePost';
@@ -20,12 +20,12 @@ import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
 
 interface Props {
-    posts: Post[];
+    users: User[];
     total: number;
     currentPage: number;
 }
 
-export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
+export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
     const page = useMemo(() => currentPage, [currentPage]);
     const router = useRouter();
     const pathname = usePathname();
@@ -34,17 +34,17 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
     const createQueryString = useCreateQueryString(searchParams);
 
     const { mutateAsync, isPending } = useDeletePost();
-    const [currentPost, setCurrentPost] = useState<Post | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const handleDeletePost = async (id: string | number) => {
-        const findPost = posts.find((post) => post.id === id);
+        const findPost = users.find((post) => post.id === id);
         if (findPost) {
-            setCurrentPost(findPost);
+            setCurrentUser(findPost);
         }
         onOpen();
     };
     const handleConfirm = async () => {
-        if (currentPost) {
-            await mutateAsync(currentPost?.id);
+        if (currentUser) {
+            await mutateAsync(currentUser?.id);
         }
         onClose();
         router.refresh();
@@ -54,10 +54,10 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
         router.push(pathname + '?' + createQueryString('page', String(page)));
         router.refresh();
     };
-    const generateColumn = (post: Post, columnKey: any) => {
+    const generateColumn = (post: User, columnKey: any) => {
         switch (columnKey) {
             case 'update':
-                return <Link href={'/admin/posts/edit/' + post.id}>Редактировать</Link>;
+                return <Link href={'/admin/user/edit/' + post.id}>Редактировать</Link>;
             case 'delete':
                 return (
                     <Button
@@ -69,8 +69,8 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                         Удалить
                     </Button>
                 );
-            case 'published':
-                return post.published ? 'Опубликован' : 'Не опубликован';
+            // case 'published':
+            //     return post?.activeted ? 'Активирован' : 'Не активирован';
         }
         return getKeyValue(post, columnKey);
     };
@@ -96,19 +96,19 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 }}
             >
                 <TableHeader>
-                    <TableColumn key="title">Заголовок</TableColumn>
+                    <TableColumn key="name">Имя</TableColumn>
                     <TableColumn key="id">ID</TableColumn>
-                    <TableColumn key="published">Статус</TableColumn>
+                    {/* <TableColumn key="published">Статус</TableColumn> */}
                     <TableColumn key="update">{''}</TableColumn>
                     <TableColumn key="delete">{''}</TableColumn>
                 </TableHeader>
-                <TableBody items={posts}>
-                    {(post) => (
-                        <TableRow key={post!.id}>
+                <TableBody items={users}>
+                    {(user) => (
+                        <TableRow key={user.id}>
                             {(columnKey) => (
                                 <TableCell>
                                     <div className={`text-black dark:text-white`}>
-                                        {generateColumn(post, columnKey)}
+                                        {generateColumn(user, columnKey)}
                                     </div>
                                 </TableCell>
                             )}
@@ -117,7 +117,7 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 </TableBody>
             </Table>
             <Modal
-                title={`Вы хотите удалить этот пост?`}
+                title={`Вы хотите удалить этого пользователя?`}
                 isOpen={isOpen}
                 onClose={onClose}
                 onConfirm={handleConfirm}

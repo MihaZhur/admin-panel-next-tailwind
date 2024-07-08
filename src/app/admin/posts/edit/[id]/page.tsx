@@ -10,7 +10,7 @@ export default async function EditPost({ params }: { params: { id: string } }) {
             <GoBack />
             <FormPost
                 action={updatedPostAction.bind(null, params.id)}
-                initialValues={{ title: data.title }}
+                initialValues={{ title: data.title, content: data.content, published: data.published }}
                 btnText="Сохранить"
                 btnTextLoading="Сохраняется"
                 tostText="Пост успешно обновлен"
