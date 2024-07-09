@@ -15,7 +15,9 @@ model User {
   password String?
   posts    Post[]
   profile  Profile?
-  
+  activated Boolean @default(false)
+  code_activated String?
+  refresh_password String?
 }
 
 model Profile {
