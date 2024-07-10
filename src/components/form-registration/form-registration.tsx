@@ -6,8 +6,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registationSchema, ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
 import Link from 'next/link';
+import { registrationUser } from './action';
+import { showToast } from '@/utils/show-toast';
+import { useTransition } from 'react';
 
 export function FormRegistration() {
+    const [registrationLoading, startRegistartionLoading] = useTransition();
     const {
         register,
         handleSubmit,
@@ -16,8 +20,19 @@ export function FormRegistration() {
         resolver: zodResolver(registationSchema),
     });
 
-    const onSubmit = async (data: ValidationRegistrationSchemaType) => {
-        console.log(data);
+    const onSubmit = (data: ValidationRegistrationSchemaType) => {
+        startRegistartionLoading(async () => {
+            try {
+                const res = await registrationUser(data);
+                if (res.status === 200) {
+                    showToast('success', res.message);
+                    return;
+                }
+                showToast('error', res.message);
+            } catch (err: any) {
+                showToast('error', err.message);
+            }
+        });
     };
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -92,6 +107,7 @@ export function FormRegistration() {
                                 color="primary"
                                 className=" w-full"
                                 type="submit"
+                                isLoading={registrationLoading}
                             >
                                 Зарегистрироваться
                             </Button>
