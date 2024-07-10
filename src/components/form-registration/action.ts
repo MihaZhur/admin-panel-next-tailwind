@@ -3,9 +3,17 @@
 import { transporter } from '@/configs/nodemailer';
 import prisma from '@/lib/db';
 import { ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
+import { mailService } from '@/services/mail.service';
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
-import { NextResponse } from 'next/server';
+
+class CustomError extends Error {
+    statusCode: number;
+    constructor(message: string | undefined, statusCode: number) {
+        super(message);
+        this.statusCode = statusCode;
+    }
+}
 
 const LENGTH_PASSORD = 6;
 
@@ -17,13 +25,13 @@ export const registrationUser = async (data: ValidationRegistrationSchemaType) =
             },
         });
         if (candidate) {
-            throw new Error('Пользователь уже зарегистрирован');
+            throw new CustomError('Пользователь уже зарегистрирован', 400);
         }
         if (data.password !== data.password_conformition) {
-            throw new Error('Пароли не совпадают');
+            throw new CustomError('Пароли не совпадают', 400);
         }
         if (data.password.length < LENGTH_PASSORD) {
-            throw new Error('Слишком короткий пароль');
+            throw new CustomError('Слишком короткий пароль', 400);
         }
         const { password, email, name } = data;
         type OmitUserCreate = Omit<User, 'id' | 'role' | 'activated' | 'code_activated' | 'refresh_password'>;
@@ -33,27 +41,19 @@ export const registrationUser = async (data: ValidationRegistrationSchemaType) =
             password: await hash(password, Number(process.env.NEXT_PUBLIC_SALT_HASH)),
         };
 
+        await mailService.sendActivationMail(userDataHash.email, userDataHash.name!, 'testUrls');
+
         await prisma.user.create({
             data: userDataHash,
         });
 
         // Logic send Mail
 
-        const mail = await transporter.sendMail({
-            from: process.env.NEXT_PUBLIC_MAILER_USER,
-            to: userDataHash.email,
-            replyTo: email,
-            subject: `Website activity from ${email}`,
-            html: `
-            <p>Name: ${name} </p>
-            <p>Email: ${email} </p>
-            <p>Message: Подтверждение почты</p>
-            `,
-        });
-
-        return NextResponse.json({ message: 'Вам на почту отправлено сообщение об активации аккаунта' });
+        return { message: 'Вам на почту отправлено сообщение об активации аккаунта', status: 200 };
     } catch (error: any) {
-        console.log(error);
-        throw new Error(error.message);
+        if (error instanceof CustomError) {
+            return { message: error.message, status: error.statusCode };
+        }
+        return { message: 'Произошла ошибка на сервере', status: 500 };
     }
 };
