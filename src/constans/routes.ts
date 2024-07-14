@@ -18,4 +18,6 @@ export const routes = {
     error: '/404',
 
     registartion: '/registration',
+
+    main: '/',
 } as const;

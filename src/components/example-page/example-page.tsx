@@ -1,10 +1,15 @@
+import { authConfig } from '@/configs/auth';
 import { routes } from '@/constans/routes';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ButtonSignOut } from './button-sign-out';
 
-export const ExamplePage = () => {
+export const ExamplePage = async () => {
+    const session = await getServerSession(authConfig);
+
     return (
-        <div className="bg-white">
+        <div className="bg-white overflow-hidden h-screen">
             <header className="absolute inset-x-0 top-0 z-50">
                 <nav
                     className="flex items-center justify-between p-6 lg:px-8"
@@ -49,7 +54,7 @@ export const ExamplePage = () => {
                     </div>
                     <div className="hidden lg:flex lg:gap-x-12">
                         <Link
-                            href={routes.signIn}
+                            href={routes.main}
                             className="text-sm font-semibold leading-6 text-gray-900"
                         >
                             Главная
@@ -62,12 +67,16 @@ export const ExamplePage = () => {
                         </Link>
                     </div>
                     <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                        <Link
-                            href={routes.signIn}
-                            className="text-sm font-semibold leading-6 text-gray-900"
-                        >
-                            Авторизация <span aria-hidden="true">&rarr;</span>
-                        </Link>
+                        {!session?.user ? (
+                            <Link
+                                href={routes.signIn}
+                                className="text-sm font-semibold leading-6 text-gray-900"
+                            >
+                                Авторизация <span aria-hidden="true">&rarr;</span>
+                            </Link>
+                        ) : (
+                            <ButtonSignOut />
+                        )}
                     </div>
                 </nav>
                 <div
@@ -109,7 +118,7 @@ export const ExamplePage = () => {
                             <div className="-my-6 divide-y divide-gray-500/10">
                                 <div className="space-y-2 py-6">
                                     <Link
-                                        href={routes.signIn}
+                                        href={routes.main}
                                         className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
                                     >
                                         Главная
@@ -124,12 +133,16 @@ export const ExamplePage = () => {
                                     </Link>
                                 </div>
                                 <div className="py-6">
-                                    <Link
-                                        href="#"
-                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
-                                    >
-                                        Авторизация
-                                    </Link>
+                                    {!session?.user ? (
+                                        <Link
+                                            href="#"
+                                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50"
+                                        >
+                                            Авторизация
+                                        </Link>
+                                    ) : (
+                                        <ButtonSignOut />
+                                    )}
                                 </div>
                             </div>
                         </div>

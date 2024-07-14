@@ -1,5 +1,5 @@
 'use client';
-import { FieldError } from '@/app/admin/components';
+import { FieldError } from '@/app/(admin)/admin/components';
 import { loginSchema, ValidationLoginSchemaType } from '@/schemas/login-schema';
 import { showToast } from '@/utils/show-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +28,7 @@ export const FormLogin = () => {
                 const res = await signIn('credentials', { ...data, redirect: false });
                 if (res?.ok && !res.error) {
                     router.push('/');
+                    router.refresh();
                     return;
                 }
                 showToast('error', res?.error);

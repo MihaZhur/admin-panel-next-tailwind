@@ -1,7 +1,7 @@
 'use client';
 import { Button, Input } from '@nextui-org/react';
 import Image from 'next/image';
-import { FieldError } from '@/app/admin/components/field-error';
+import { FieldError } from '@/app/(admin)/admin/components/field-error';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registationSchema, ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
