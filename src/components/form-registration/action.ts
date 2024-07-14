@@ -1,12 +1,12 @@
 'use server';
 
-import { transporter } from '@/configs/nodemailer';
+import { routes } from '@/constans/routes';
 import prisma from '@/lib/db';
 import { ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
 import { mailService } from '@/services/mail.service';
 import { User } from '@prisma/client';
 import { hash } from 'bcrypt';
-
+import { v4 as uuidv4 } from 'uuid';
 class CustomError extends Error {
     statusCode: number;
     constructor(message: string | undefined, statusCode: number) {
@@ -34,14 +34,20 @@ export const registrationUser = async (data: ValidationRegistrationSchemaType) =
             throw new CustomError('Слишком короткий пароль', 400);
         }
         const { password, email, name } = data;
-        type OmitUserCreate = Omit<User, 'id' | 'role' | 'activated' | 'code_activated' | 'refresh_password'>;
+        type OmitUserCreate = Omit<User, 'id' | 'role' | 'activated' | 'refresh_password'>;
+
+        const hashCode = uuidv4();
+
         const userDataHash: OmitUserCreate = {
             email,
             name,
             password: await hash(password, Number(process.env.NEXT_PUBLIC_SALT_HASH)),
+            code_activated: hashCode,
         };
 
-        await mailService.sendActivationMail(userDataHash.email, userDataHash.name!, 'testUrls');
+        const activatedLink = routes.activated + hashCode;
+
+        await mailService.sendActivationMail(userDataHash.email, userDataHash.name!, activatedLink);
 
         await prisma.user.create({
             data: userDataHash,

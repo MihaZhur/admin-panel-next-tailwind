@@ -46,6 +46,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.19",
     "bcrypt": "^5.1.1",
     "eslint": "^8",

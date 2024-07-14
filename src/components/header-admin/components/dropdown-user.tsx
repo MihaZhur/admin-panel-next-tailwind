@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ClickOutside } from '@/components/sidebar';
+import { ClickOutside } from '@/components/sidebar-admin';
 import { useSession, signOut } from 'next-auth/react';
 import { rolesMap } from '@/constans/roles-map';
 

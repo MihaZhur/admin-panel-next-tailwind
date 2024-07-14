@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import SidebarDropdown from '@/components/sidebar/sideber-dropdown';
+import SidebarDropdown from '@/components/sidebar-admin/sideber-dropdown';
 import { usePathname } from 'next/navigation';
 
 export const SidebarItem = ({ item, pageName, setPageName }: any) => {

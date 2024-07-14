@@ -11,4 +11,13 @@ export const routes = {
     adminSettings: '/admin/settings',
     adminMailSettings: '/admin/mail/settings',
     adminMailApplication: '/admin/mail/applications',
+
+    activated: '/activated/',
+
+    signIn: '/signin',
+    error: '/404',
+
+    registartion: '/registration',
+
+    main: '/',
 } as const;

@@ -1,14 +1,12 @@
 import prisma from '@/lib/db';
 import { compare } from 'bcrypt';
-import type { AuthOptions, User } from 'next-auth';
+import type { AuthOptions } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-const admin = {
-    id: '1',
-    email: 'test@mail.ru',
-    name: 'Михаил',
-    password: '1q2w3e4r',
-    role: 'ADMIN',
-};
+
+const MESSAGE_ERROR_VALIDATE_USER = 'Неверно набран email или пароль';
+
+const MESSAGE_ERROR_ACTIVATION_USER = 'Ваш аккаунт еще не активирован';
+
 export const authConfig: AuthOptions = {
     session: {
         strategy: 'jwt',
@@ -38,7 +36,7 @@ export const authConfig: AuthOptions = {
             },
             async authorize(credentials) {
                 if (!credentials?.email || !credentials.password) {
-                    return null;
+                    throw new Error(MESSAGE_ERROR_VALIDATE_USER);
                 }
 
                 const user = await prisma.user.findUnique({
@@ -48,14 +46,19 @@ export const authConfig: AuthOptions = {
                 });
 
                 if (!user) {
-                    return null;
+                    throw new Error(MESSAGE_ERROR_VALIDATE_USER);
                 }
 
-                const isPasswordValid = compare(credentials.password, user.password ?? '');
+                const isPasswordValid = await compare(credentials.password, String(user.password));
 
                 if (!isPasswordValid) {
-                    return null;
+                    throw new Error(MESSAGE_ERROR_VALIDATE_USER);
                 }
+
+                if (!user.activated) {
+                    throw new Error(MESSAGE_ERROR_ACTIVATION_USER);
+                }
+
                 return {
                     id: user.id + '',
                     email: user.email,

@@ -1,7 +1,7 @@
 'use client';
 import { Button, Input } from '@nextui-org/react';
 import Image from 'next/image';
-import { FieldError } from '@/app/admin/components/field-error';
+import { FieldError } from '@/app/(admin)/admin/components/field-error';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registationSchema, ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { registrationUser } from './action';
 import { showToast } from '@/utils/show-toast';
 import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function FormRegistration() {
     const [registrationLoading, startRegistartionLoading] = useTransition();
@@ -20,12 +21,15 @@ export function FormRegistration() {
         resolver: zodResolver(registationSchema),
     });
 
+    const router = useRouter();
+
     const onSubmit = (data: ValidationRegistrationSchemaType) => {
         startRegistartionLoading(async () => {
             try {
                 const res = await registrationUser(data);
                 if (res.status === 200) {
                     showToast('success', res.message);
+                    router.push('/');
                     return;
                 }
                 showToast('error', res.message);
@@ -108,6 +112,8 @@ export function FormRegistration() {
                                 className=" w-full"
                                 type="submit"
                                 isLoading={registrationLoading}
+                                variant="shadow"
+                                size="lg"
                             >
                                 Зарегистрироваться
                             </Button>
