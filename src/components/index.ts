@@ -1,8 +1,11 @@
 export { AdmintLayout } from './layouts/';
-export { Header } from './header';
-export { Sidebar } from './sidebar';
+export { Header } from './header-admin';
+export { Sidebar } from './sidebar-admin';
 export { NextNProgressClient } from './common/next-top-loader';
 export { GoBack } from './go-back';
 export { FormRegistration } from './form-registration';
 export { FormLogin } from './form-login';
 export { ExamplePage } from './example-page';
+export { SignOutButton } from './sign-out';
+export { HeaderSite } from './header-site';
+export { SiteLayout } from './layouts';

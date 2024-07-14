@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ClickOutside } from "@/components/sidebar/";
+import { ClickOutside } from "@/components/sidebar-admin";
 
 export const DropdownMessage = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
