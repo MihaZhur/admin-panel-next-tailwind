@@ -1,5 +1,5 @@
 'use client';
-import { EditorText, FieldError } from '@/app/admin/components/';
+import { EditorText, FieldError } from '@/app/admin/components';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';

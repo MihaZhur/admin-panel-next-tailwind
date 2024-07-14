@@ -4,3 +4,5 @@ export { Sidebar } from './sidebar';
 export { NextNProgressClient } from './common/next-top-loader';
 export { GoBack } from './go-back';
 export { FormRegistration } from './form-registration';
+export { FormLogin } from './form-login';
+export { ExamplePage } from './example-page';
