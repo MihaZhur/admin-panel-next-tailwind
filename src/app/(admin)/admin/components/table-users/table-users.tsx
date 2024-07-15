@@ -11,14 +11,15 @@ import {
     getKeyValue,
     Button,
     useDisclosure,
+    user,
 } from '@nextui-org/react';
-import { User } from '@prisma/client';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
 import { rolesMap } from '@/constans/roles-map';
+import { User } from '@/types/user';
 
 interface Props {
     users: User[];
@@ -51,7 +52,7 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
         router.refresh();
     };
 
-    const handleChngePage = (page: number) => {
+    const handleChangePage = (page: number) => {
         router.push(pathname + '?' + createQueryString('page', String(page)));
         router.refresh();
     };
@@ -80,17 +81,19 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
             <Table
                 aria-label="Example table with client side pagination"
                 bottomContent={
-                    <div className="flex w-full justify-center">
-                        <Pagination
-                            isCompact
-                            showControls
-                            showShadow
-                            color="primary"
-                            page={page}
-                            total={total}
-                            onChange={handleChngePage}
-                        />
-                    </div>
+                    users.length > 0 && (
+                        <div className="flex w-full justify-center">
+                            <Pagination
+                                isCompact
+                                showControls
+                                showShadow
+                                color="primary"
+                                page={page}
+                                total={total}
+                                onChange={handleChangePage}
+                            />
+                        </div>
+                    )
                 }
                 classNames={{
                     wrapper: 'min-h-[222px]',

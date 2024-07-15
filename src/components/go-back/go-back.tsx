@@ -19,7 +19,7 @@ export const GoBack = () => {
                 />
             }
             onClick={() => router.back()}
-            className="mb-4"
+            className="mb-4 mr-auto"
         >
             Вернуться назад
         </Button>

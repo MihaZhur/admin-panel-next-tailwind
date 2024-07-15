@@ -12,7 +12,7 @@ import {
     Button,
     useDisclosure,
 } from '@nextui-org/react';
-import { Post } from '@prisma/client';
+import { CategoryPost } from '@prisma/client';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useDeletePost } from '@/hooks/admin/useDeletePost';
@@ -20,12 +20,12 @@ import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
 
 interface Props {
-    posts: Post[];
+    categories: CategoryPost[];
     total: number;
     currentPage: number;
 }
 
-export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
+export const TablePostCategoryes: React.FC<Props> = ({ categories, total, currentPage }) => {
     const page = useMemo(() => currentPage, [currentPage]);
     const router = useRouter();
     const pathname = usePathname();
@@ -33,10 +33,10 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const createQueryString = useCreateQueryString(searchParams);
 
-    const { mutateAsync, isPending } = useDeletePost();
-    const [currentPost, setCurrentPost] = useState<Post | null>(null);
+    // const { mutateAsync, isPending } = useDeletePost();
+    const [currentPost, setCurrentPost] = useState<CategoryPost | null>(null);
     const handleDeletePost = async (id: string | number) => {
-        const findPost = posts.find((post) => post.id === id);
+        const findPost = categories.find((post) => post.id === id);
         if (findPost) {
             setCurrentPost(findPost);
         }
@@ -44,7 +44,7 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
     };
     const handleConfirm = async () => {
         if (currentPost) {
-            await mutateAsync(currentPost?.id);
+            // await mutateAsync(currentPost?.id);
         }
         onClose();
         router.refresh();
@@ -54,32 +54,30 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
         router.push(pathname + '?' + createQueryString('page', String(page)));
         router.refresh();
     };
-    const generateColumn = (post: Post, columnKey: any) => {
+    const generateColumn = (categiry: CategoryPost, columnKey: any) => {
         switch (columnKey) {
             case 'update':
-                return <Link href={'/admin/posts/edit/' + post.id}>Редактировать</Link>;
+                return <Link href={'/admin/posts/categories/edit/' + categiry.id}>Редактировать</Link>;
             case 'delete':
                 return (
                     <Button
                         color="danger"
                         variant="bordered"
                         size="sm"
-                        onClick={() => handleDeletePost(post.id)}
+                        onClick={() => handleDeletePost(categiry.id)}
                     >
                         Удалить
                     </Button>
                 );
-            case 'published':
-                return post.published ? 'Опубликован' : 'Не опубликован';
         }
-        return getKeyValue(post, columnKey);
+        return getKeyValue(categiry, columnKey);
     };
     return (
         <>
             <Table
                 aria-label="Example table with client side pagination"
                 bottomContent={
-                    posts.length > 0 && (
+                    categories.length > 0 && (
                         <div className="flex w-full justify-center">
                             <Pagination
                                 isCompact
@@ -98,22 +96,21 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 }}
             >
                 <TableHeader>
-                    <TableColumn key="title">Заголовок</TableColumn>
+                    <TableColumn key="name">Название категории</TableColumn>
                     <TableColumn key="id">ID</TableColumn>
-                    <TableColumn key="published">Статус</TableColumn>
                     <TableColumn key="update">{''}</TableColumn>
                     <TableColumn key="delete">{''}</TableColumn>
                 </TableHeader>
                 <TableBody
-                    items={posts}
-                    emptyContent={'Посты не найдены.'}
+                    items={categories}
+                    emptyContent={'Категории не найдены.'}
                 >
-                    {(post) => (
-                        <TableRow key={post!.id}>
+                    {(category) => (
+                        <TableRow key={category!.id}>
                             {(columnKey) => (
                                 <TableCell>
                                     <div className={`text-black dark:text-white`}>
-                                        {generateColumn(post, columnKey)}
+                                        {generateColumn(category, columnKey)}
                                     </div>
                                 </TableCell>
                             )}
@@ -122,13 +119,13 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 </TableBody>
             </Table>
             <Modal
-                title={`Вы хотите удалить этот пост?`}
+                title={`Вы хотите удалить эту категорию?`}
                 isOpen={isOpen}
                 onClose={onClose}
                 onConfirm={handleConfirm}
                 textClose="Отмена"
                 textConfirm="Удалить"
-                isLoadingConfirm={isPending}
+                // isLoadingConfirm={isPending}
             ></Modal>
         </>
     );
