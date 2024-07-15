@@ -1,19 +1,10 @@
 'use server';
+import { ValidationPostSchemaType } from '@/schemas/post-schema';
+import { postService } from '@/services/post.service';
 
-import prisma from '@/lib/db';
-
-export const updatedPostAction = async (id: string, formState: FormData | any) => {
+export const updatedPostAction = async (id: string, dataUpdate: ValidationPostSchemaType) => {
     try {
-        // const res = await fetch(`http://localhost:3000/api/posts/${id}`, {
-        //     method: 'PATCH',
-        //     body: JSON.stringify({ ...formState }),
-        // });
-        const post = await prisma.post.update({
-            where: {
-                id: +id,
-            },
-            data: formState,
-        });
+        await postService.editPost(+id, dataUpdate);
         return { message: 'Пост успешно отредактирован!' };
     } catch (error: any) {
         const message = error.message;

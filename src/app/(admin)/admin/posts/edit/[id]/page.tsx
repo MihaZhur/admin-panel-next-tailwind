@@ -1,20 +1,27 @@
 import { GoBack } from '@/components';
 import { updatedPostAction } from './action';
-import { FormPost } from '@/app/(admin)/admin/components';
+import { BodyPage, FormPost } from '@/app/(admin)/admin/components';
+import { postService } from '@/services/post.service';
+import { categoryPostService } from '@/services/category-post.service';
 
 export default async function EditPost({ params }: { params: { id: string } }) {
-    const staticData = await fetch(`http://localhost:3000/api/posts/${params.id}`, { cache: 'no-store' });
-    const data = await staticData.json();
+    const { title, content, published, categories: categoriesPost } = await postService.getPostById(+params.id);
+    const { categories } = await categoryPostService.getCategories({ currentPage: 1 });
     return (
-        <>
+        <BodyPage>
             <GoBack />
             <FormPost
                 action={updatedPostAction.bind(null, params.id)}
-                initialValues={{ title: data.title, content: data.content, published: data.published }}
+                initialValues={{
+                    title,
+                    content: content ?? '',
+                    published,
+                    categories: categoriesPost,
+                }}
                 btnText="Сохранить"
-                btnTextLoading="Сохраняется"
-                tostText="Пост успешно обновлен"
+                tostText="Пост успешно обновлен!"
+                categories={categories}
             />
-        </>
+        </BodyPage>
     );
 }

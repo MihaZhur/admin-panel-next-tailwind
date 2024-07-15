@@ -1,18 +1,12 @@
 'use server';
-import prisma from '@/lib/db';
+import { ValidationPostSchemaType } from '@/schemas/post-schema';
+import { postService } from '@/services/post.service';
+import { number } from 'zod';
 
-export const cretePostAction = async (authorId: number | string, formState: any) => {
+export const cretePostAction = async (authorId: number | string, dataCreate: ValidationPostSchemaType) => {
     try {
-        console.log(authorId, formState);
-
-        const postData = await prisma.post.create({
-            data: {
-                authorId: +authorId,
-                ...formState,
-            },
-        });
-
-        return { message: 'Пост успешно создан!', data: postData };
+        const postData = await postService.createPost(+authorId, dataCreate);
+        return { message: 'Пост успешно создан!', postData };
     } catch (error: any) {
         console.log(error);
         const message = error.message;

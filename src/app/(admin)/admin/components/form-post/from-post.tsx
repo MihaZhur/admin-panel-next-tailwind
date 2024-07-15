@@ -1,34 +1,35 @@
 'use client';
 import { EditorText, FieldError } from '@/app/(admin)/admin/components';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Switch } from '@nextui-org/react';
+import { Button, Input, Select, SelectItem, Switch } from '@nextui-org/react';
 import { showToast } from '@/utils/show-toast';
-export const postSchema = z.object({
-    title: z.string().min(2, { message: 'Слишком короткое название поста' }),
-    content: z.string(),
-    published: z.boolean(),
-});
+import { postSchema, ValidationPostSchemaType } from '@/schemas/post-schema';
+import { CategoryPost } from '@prisma/client';
+
 interface Props {
-    action: any;
+    action: (data: ValidationPostSchemaType) => Promise<void>;
     initialValues?: {
         title: string;
         content: string;
         published: boolean;
+        categories: string[];
     };
     btnText?: string;
-    btnTextLoading?: string;
     tostText?: string;
+    categories: CategoryPost[];
 }
 export const FormPost: React.FC<Props> = ({
     action: actionFn,
     initialValues,
     btnText,
-    tostText = 'Пост успешно создан',
+    tostText = 'Пост успешно создан!',
+    categories,
 }) => {
+    console.log(initialValues);
+
     const router = useRouter();
     const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
     const {
@@ -40,7 +41,9 @@ export const FormPost: React.FC<Props> = ({
         defaultValues: initialValues,
         resolver: zodResolver(postSchema),
     });
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: ValidationPostSchemaType) => {
+        console.log(data);
+
         startIsPendingCreatePost(async () => {
             try {
                 await actionFn(data);
@@ -57,19 +60,43 @@ export const FormPost: React.FC<Props> = ({
 
     return (
         <>
-            <form
-                className=" mx-auto"
-                onSubmit={handleSubmit(onSubmit)}
-            >
-                <Switch
-                    {...register('published')}
-                    color="success"
-                    name="published"
-                    size="sm"
-                    className="mb-3"
-                >
-                    Опубликовать
-                </Switch>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="mb-3 flex justify-between">
+                    <Switch
+                        {...register('published')}
+                        color="success"
+                        name="published"
+                        size="sm"
+                        className="mb-3"
+                    >
+                        Опубликовать
+                    </Switch>
+                    <Controller
+                        name="categories"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                label="Категория поста"
+                                placeholder="Выберите категорию поста"
+                                className="max-w-xs"
+                                multiple
+                                selectionMode="multiple"
+                                defaultSelectedKeys={field.value}
+                                onSelectionChange={(selected) => field.onChange(Array.from(selected))}
+                            >
+                                {categories.map((category) => (
+                                    <SelectItem
+                                        key={category.id}
+                                        value={category.id.toString()}
+                                    >
+                                        {category.name}
+                                    </SelectItem>
+                                ))}
+                            </Select>
+                        )}
+                    />
+                </div>
+
                 <label
                     htmlFor="title"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"

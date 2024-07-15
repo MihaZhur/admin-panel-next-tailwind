@@ -1,23 +1,16 @@
 import { routes } from '@/constans/routes';
 import prisma from '@/lib/db';
+import { userService } from '@/services/user.service';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 export default async function ActivationPage(request: { params: { code_activated: string } }) {
-    const user = await prisma.user.findFirst({
-        where: { code_activated: request.params.code_activated },
-    });
+    const user = await userService.getUserByCode(request.params.code_activated);
 
     if (!user) {
-        redirect(routes.error);
+        return notFound();
     }
-    await prisma.user.update({
-        where: { id: user.id },
-        data: {
-            activated: true,
-            code_activated: null,
-        },
-    });
+    await userService.updateCode(user.id);
 
     return (
         <div className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">

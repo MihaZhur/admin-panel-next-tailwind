@@ -1,10 +1,10 @@
-import { postApi } from '@/api/';
+import { postService } from '@/services/post.service';
 import { showToast } from '@/utils/show-toast';
 import { useMutation } from '@tanstack/react-query';
 
 export const useDeletePost = () => {
     return useMutation({
-        mutationFn: (id: string | number) => postApi.deleteById(id),
+        mutationFn: (id: string | number) => postService.deletePostById(+id),
         onSuccess: () => {
             showToast('success', 'Пост успешно удален!');
         },

@@ -37,13 +37,13 @@ model Post {
   published  Boolean    @default(false)
   authorId   Int
   author     User       @relation(fields: [authorId], references: [id])
-  categories Category[] @relation("CategoryToPost")
+  categories CategoryPost[] @relation("CategoryToPost")
 }
 
-model Category {
+model CategoryPost {
   id      Int    @id @default(autoincrement())
   name    String
-  preview String
+  preview String?
   posts   Post[] @relation("CategoryToPost")
 }
 
