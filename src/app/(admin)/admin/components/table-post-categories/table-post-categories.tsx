@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import {
     Table,
     TableHeader,
@@ -15,9 +15,11 @@ import {
 import { CategoryPost } from '@prisma/client';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
+import { deleteCategoryByIdAction } from './action';
+import { showToast } from '@/utils/show-toast';
+import { PencilIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid';
 
 interface Props {
     categories: CategoryPost[];
@@ -33,7 +35,7 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
     const { isOpen, onOpen, onClose } = useDisclosure();
     const createQueryString = useCreateQueryString(searchParams);
 
-    // const { mutateAsync, isPending } = useDeletePost();
+    const [isPendingDeleteCategory, startIsPendingDeleteCategory] = useTransition();
     const [currentPost, setCurrentPost] = useState<CategoryPost | null>(null);
     const handleDeletePost = async (id: string | number) => {
         const findPost = categories.find((post) => post.id === id);
@@ -43,11 +45,14 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
         onOpen();
     };
     const handleConfirm = async () => {
-        if (currentPost) {
-            // await mutateAsync(currentPost?.id);
-        }
-        onClose();
-        router.refresh();
+        startIsPendingDeleteCategory(async () => {
+            if (currentPost) {
+                const res = await deleteCategoryByIdAction(currentPost?.id);
+                showToast(res.status as any, res.message);
+            }
+            onClose();
+            router.refresh();
+        });
     };
 
     const handleChngePage = (page: number) => {
@@ -57,7 +62,23 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
     const generateColumn = (categiry: CategoryPost, columnKey: any) => {
         switch (columnKey) {
             case 'update':
-                return <Link href={'/admin/posts/categories/edit/' + categiry.id}>Редактировать</Link>;
+                return (
+                    <Button
+                        as={Link}
+                        href={'/admin/posts/categories/edit/' + categiry.id}
+                        color="primary"
+                        size="sm"
+                        className=" mx-auto"
+                        endContent={
+                            <PencilSquareIcon
+                                width={14}
+                                height={14}
+                            />
+                        }
+                    >
+                        Редактировать
+                    </Button>
+                );
             case 'delete':
                 return (
                     <Button
@@ -65,6 +86,12 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
                         variant="bordered"
                         size="sm"
                         onClick={() => handleDeletePost(categiry.id)}
+                        endContent={
+                            <TrashIcon
+                                width={14}
+                                height={14}
+                            />
+                        }
                     >
                         Удалить
                     </Button>
@@ -96,10 +123,20 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
                 }}
             >
                 <TableHeader>
-                    <TableColumn key="name">Название категории</TableColumn>
                     <TableColumn key="id">ID</TableColumn>
-                    <TableColumn key="update">{''}</TableColumn>
-                    <TableColumn key="delete">{''}</TableColumn>
+                    <TableColumn key="name">Название категории</TableColumn>
+                    <TableColumn
+                        key="update"
+                        align="end"
+                    >
+                        {''}
+                    </TableColumn>
+                    <TableColumn
+                        key="delete"
+                        align="end"
+                    >
+                        {''}
+                    </TableColumn>
                 </TableHeader>
                 <TableBody
                     items={categories}
@@ -125,7 +162,7 @@ export const TablePostCategoryes: React.FC<Props> = ({ categories, total, curren
                 onConfirm={handleConfirm}
                 textClose="Отмена"
                 textConfirm="Удалить"
-                // isLoadingConfirm={isPending}
+                isLoadingConfirm={isPendingDeleteCategory}
             ></Modal>
         </>
     );

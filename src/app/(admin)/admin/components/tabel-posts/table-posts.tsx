@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import {
     Table,
     TableHeader,
@@ -11,13 +11,16 @@ import {
     getKeyValue,
     Button,
     useDisclosure,
+    Chip,
 } from '@nextui-org/react';
 import { Post } from '@prisma/client';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid';
+import { deletePostByIdAction } from './action';
+import { showToast } from '@/utils/show-toast';
 
 interface Props {
     posts: Post[];
@@ -33,7 +36,7 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const createQueryString = useCreateQueryString(searchParams);
 
-    const { mutateAsync, isPending } = useDeletePost();
+    const [isPendingDelete, startIsPendingDelete] = useTransition();
     const [currentPost, setCurrentPost] = useState<Post | null>(null);
     const handleDeletePost = async (id: string | number) => {
         const findPost = posts.find((post) => post.id === id);
@@ -43,11 +46,14 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
         onOpen();
     };
     const handleConfirm = async () => {
-        if (currentPost) {
-            await mutateAsync(currentPost?.id);
-        }
-        onClose();
-        router.refresh();
+        startIsPendingDelete(async () => {
+            if (currentPost) {
+                const res = await deletePostByIdAction(currentPost?.id);
+                showToast(res.status as any, res.message);
+            }
+            onClose();
+            router.refresh();
+        });
     };
 
     const handleChngePage = (page: number) => {
@@ -57,7 +63,23 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
     const generateColumn = (post: Post, columnKey: any) => {
         switch (columnKey) {
             case 'update':
-                return <Link href={'/admin/posts/edit/' + post.id}>Редактировать</Link>;
+                return (
+                    <Button
+                        as={Link}
+                        href={'/admin/posts/edit/' + post.id}
+                        color="primary"
+                        size="sm"
+                        className=" mx-auto"
+                        endContent={
+                            <PencilSquareIcon
+                                width={14}
+                                height={14}
+                            />
+                        }
+                    >
+                        Редактировать
+                    </Button>
+                );
             case 'delete':
                 return (
                     <Button
@@ -65,12 +87,36 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                         variant="bordered"
                         size="sm"
                         onClick={() => handleDeletePost(post.id)}
+                        endContent={
+                            <TrashIcon
+                                width={14}
+                                height={14}
+                            />
+                        }
                     >
                         Удалить
                     </Button>
                 );
             case 'published':
-                return post.published ? 'Опубликован' : 'Не опубликован';
+                return post.published ? (
+                    <Chip
+                        color="success"
+                        variant="shadow"
+                        size="sm"
+                        className="text-white"
+                    >
+                        Опубликован
+                    </Chip>
+                ) : (
+                    <Chip
+                        color="warning"
+                        variant="shadow"
+                        size="sm"
+                        className="text-white"
+                    >
+                        Не опубликован
+                    </Chip>
+                );
         }
         return getKeyValue(post, columnKey);
     };
@@ -98,11 +144,22 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 }}
             >
                 <TableHeader>
-                    <TableColumn key="title">Заголовок</TableColumn>
                     <TableColumn key="id">ID</TableColumn>
+                    <TableColumn key="title">Заголовок</TableColumn>
+
                     <TableColumn key="published">Статус</TableColumn>
-                    <TableColumn key="update">{''}</TableColumn>
-                    <TableColumn key="delete">{''}</TableColumn>
+                    <TableColumn
+                        key="update"
+                        align="end"
+                    >
+                        {''}
+                    </TableColumn>
+                    <TableColumn
+                        key="delete"
+                        align="end"
+                    >
+                        {''}
+                    </TableColumn>
                 </TableHeader>
                 <TableBody
                     items={posts}
@@ -128,7 +185,7 @@ export const TablePosts: React.FC<Props> = ({ posts, total, currentPage }) => {
                 onConfirm={handleConfirm}
                 textClose="Отмена"
                 textConfirm="Удалить"
-                isLoadingConfirm={isPending}
+                isLoadingConfirm={isPendingDelete}
             ></Modal>
         </>
     );

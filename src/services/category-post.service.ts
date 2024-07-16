@@ -58,10 +58,10 @@ class CategoryPostService {
         return deletedCategory;
     }
 
-    async updateCategory(id: number, name: string) {
+    async updateCategory(id: number, { name, preview }: { name: string; preview?: string }) {
         const category = await this.prismaClient.categoryPost.update({
             where: { id },
-            data: { name },
+            data: { name, preview },
         });
         return category;
     }

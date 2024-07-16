@@ -2,7 +2,7 @@
 import { EditorText, FieldError } from '@/app/(admin)/admin/components';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Select, SelectItem, Switch } from '@nextui-org/react';
 import { showToast } from '@/utils/show-toast';
@@ -10,7 +10,7 @@ import { postSchema, ValidationPostSchemaType } from '@/schemas/post-schema';
 import { CategoryPost } from '@prisma/client';
 
 interface Props {
-    action: (data: ValidationPostSchemaType) => Promise<void>;
+    action: (data: ValidationPostSchemaType, file: any) => Promise<void>;
     initialValues?: {
         title: string;
         content: string;
@@ -28,7 +28,7 @@ export const FormPost: React.FC<Props> = ({
     tostText = 'Пост успешно создан!',
     categories,
 }) => {
-    console.log(initialValues);
+    const [filePreiview, setFilePreview] = useState<File>();
 
     const router = useRouter();
     const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
@@ -45,8 +45,13 @@ export const FormPost: React.FC<Props> = ({
         console.log(data);
 
         startIsPendingCreatePost(async () => {
+            const fileFormData = new FormData();
+            if (filePreiview) {
+                fileFormData.append('file', filePreiview);
+            }
+
             try {
-                await actionFn(data);
+                await actionFn(data, fileFormData);
                 router.push(`/admin/posts`);
                 router.refresh();
                 showToast('success', tostText);
@@ -60,6 +65,19 @@ export const FormPost: React.FC<Props> = ({
 
     return (
         <>
+            <div className="mb-3">
+                <input
+                    type="file"
+                    placeholder="загрузить превью"
+                    // value={filePreiview?.name ?? ''}
+                    onChange={(e) => {
+                        if (e.target.files?.length) {
+                            console.log(filePreiview);
+                            setFilePreview(e.target.files[0]);
+                        }
+                    }}
+                />
+            </div>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3 flex justify-between">
                     <Switch
@@ -96,7 +114,6 @@ export const FormPost: React.FC<Props> = ({
                         )}
                     />
                 </div>
-
                 <label
                     htmlFor="title"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"

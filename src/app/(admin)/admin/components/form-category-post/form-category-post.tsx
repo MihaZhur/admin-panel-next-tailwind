@@ -18,7 +18,7 @@ interface Props {
 }
 export const FormCategoryPost: React.FC<Props> = ({ initialValues, tostText, action: actionFn, btnText }) => {
     const router = useRouter();
-    const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
+    const [isPending, startIsPending] = useTransition();
     const {
         register,
         handleSubmit,
@@ -27,10 +27,12 @@ export const FormCategoryPost: React.FC<Props> = ({ initialValues, tostText, act
         defaultValues: initialValues,
         resolver: zodResolver(categoryPostSchema),
     });
-    const onSubmit = async (data: ValidationCategoryPostSchemaType) => {
-        startIsPendingCreatePost(async () => {
+    const onSubmit = (data: ValidationCategoryPostSchemaType) => {
+        startIsPending(async () => {
+            console.log(data);
+
             try {
-                await actionFn(data);
+                const res = await actionFn(data);
                 router.push(`/admin/posts/categories`);
                 router.refresh();
                 showToast('success', tostText);
@@ -63,7 +65,7 @@ export const FormCategoryPost: React.FC<Props> = ({ initialValues, tostText, act
                 color="primary"
                 variant="solid"
                 isDisabled={!isDirty}
-                isLoading={isPendingCreatePost}
+                isLoading={isPending}
             >
                 {btnText}
             </Button>
