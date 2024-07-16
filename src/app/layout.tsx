@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from '@/providers/provider';
 import { NextNProgressClient } from '@/components';
 import { NextUIProvider } from '@nextui-org/system';
-import { ToastProvider } from './(admin)/admin/components/toasty/toast-provider';
+import { ToastProvider } from '@/components/';
 export const metadata: Metadata = {
     title: 'Шаблон админки Nextjs Prisma',
     description:

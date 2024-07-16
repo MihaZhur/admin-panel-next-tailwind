@@ -8,10 +8,10 @@ export const updateCategoryPostAction = async (
 ) => {
     try {
         const postData = await categoryPostService.updateCategory(categoryId, updateCategoryData);
-        return { message: 'Категоря успешно обновлена!', postData };
+        return { message: 'Категоря успешно обновлена!', postData, status: 'success' };
     } catch (error: any) {
         console.log(error);
         const message = error.message;
-        return message ? message : 'Неизвестная ошибка';
+        return { message: message ? message : 'Неизвестная ошибка', status: 'error' };
     }
 };

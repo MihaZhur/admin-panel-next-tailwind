@@ -41,21 +41,27 @@ export class UploadService {
 
             await fs.writeFile(filePath, buffer);
 
-            return `upload/${typePath}/${uniqueFilename}`;
+            return `/upload/${typePath}/${uniqueFilename}`;
         } catch (e: any) {
+            const message = e.message;
             console.error(e);
-            throw new Error('Ошибка загрузки файла');
+            throw new Error(message ? message : 'Ошибка загрузки файла');
         }
     }
 
-    async deleteFile(filePath: string) {
+    async deleteFile(filePath?: string) {
         try {
+            if (typeof filePath === 'undefined') {
+                return;
+            }
             const fullPath = join(process.cwd(), 'public', filePath);
             await fs.unlink(fullPath);
             console.log(`Файл ${fullPath} успешно удален`);
             return true;
-        } catch (error) {
+        } catch (error: any) {
             console.error(`Ошибка при удалении файла ${filePath}:`, error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка загрузки файла');
         }
     }
 }

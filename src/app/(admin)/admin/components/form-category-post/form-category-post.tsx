@@ -1,6 +1,6 @@
 'use client';
 import { Button, Input } from '@nextui-org/react';
-import { FieldError } from '../field-error';
+import { FieldError } from '@/components';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,7 +9,7 @@ import { categoryPostSchema, ValidationCategoryPostSchemaType } from '@/schemas/
 import { showToast } from '@/utils/show-toast';
 
 interface Props {
-    action: (data: ValidationCategoryPostSchemaType) => Promise<void>;
+    action: (data: ValidationCategoryPostSchemaType) => Promise<any>;
     initialValues?: {
         name: string;
     };
@@ -29,15 +29,17 @@ export const FormCategoryPost: React.FC<Props> = ({ initialValues, tostText, act
     });
     const onSubmit = (data: ValidationCategoryPostSchemaType) => {
         startIsPending(async () => {
-            console.log(data);
-
             try {
                 const res = await actionFn(data);
+                if (res.status === 'error') {
+                    showToast('error', res.message);
+                    return;
+                }
+                showToast('success', res.message ?? tostText);
                 router.push(`/admin/posts/categories`);
                 router.refresh();
-                showToast('success', tostText);
             } catch (err: any) {
-                const message = err?.response?.data?.message;
+                const message = err?.message;
                 console.error(err);
                 showToast('error', message);
             }

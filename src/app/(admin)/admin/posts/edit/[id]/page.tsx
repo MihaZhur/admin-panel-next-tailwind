@@ -5,7 +5,13 @@ import { postService } from '@/services/post.service';
 import { categoryPostService } from '@/services/category-post.service';
 
 export default async function EditPost({ params }: { params: { id: string } }) {
-    const { title, content, published, categories: categoriesPost } = await postService.getPostById(+params.id);
+    const {
+        title,
+        content,
+        published,
+        categories: categoriesPost,
+        preview,
+    } = await postService.getPostById(+params.id);
     const { categories } = await categoryPostService.getCategories({ currentPage: 1 });
     return (
         <BodyPage>
@@ -17,6 +23,7 @@ export default async function EditPost({ params }: { params: { id: string } }) {
                     content: content ?? '',
                     published,
                     categories: categoriesPost,
+                    preview,
                 }}
                 btnText="Сохранить"
                 tostText="Пост успешно обновлен!"

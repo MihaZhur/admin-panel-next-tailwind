@@ -1,21 +1,24 @@
 'use client';
-import { EditorText, FieldError } from '@/app/(admin)/admin/components';
+import { ButtonUploader, EditorText } from '@/app/(admin)/admin/components';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Select, SelectItem, Switch } from '@nextui-org/react';
 import { showToast } from '@/utils/show-toast';
 import { postSchema, ValidationPostSchemaType } from '@/schemas/post-schema';
 import { CategoryPost } from '@prisma/client';
-
+import Image from 'next/image';
+import { validateFile } from '@/utils/validate-file';
+import { FieldError } from '@/components';
 interface Props {
-    action: (data: ValidationPostSchemaType, file: any) => Promise<void>;
+    action: (data: ValidationPostSchemaType, file: any) => Promise<any>;
     initialValues?: {
         title: string;
         content: string;
         published: boolean;
         categories: string[];
+        preview: string | null;
     };
     btnText?: string;
     tostText?: string;
@@ -28,7 +31,8 @@ export const FormPost: React.FC<Props> = ({
     tostText = 'Пост успешно создан!',
     categories,
 }) => {
-    const [filePreiview, setFilePreview] = useState<File>();
+    const [filePreview, setFilePreview] = useState<File>();
+    const [imagePath, setImagePath] = useState<string | null>(initialValues?.preview ?? null);
 
     const router = useRouter();
     const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
@@ -36,48 +40,69 @@ export const FormPost: React.FC<Props> = ({
         register,
         handleSubmit,
         control,
+        setValue,
         formState: { errors, isDirty },
     } = useForm({
         defaultValues: initialValues,
         resolver: zodResolver(postSchema),
     });
     const onSubmit = async (data: ValidationPostSchemaType) => {
-        console.log(data);
-
         startIsPendingCreatePost(async () => {
             const fileFormData = new FormData();
-            if (filePreiview) {
-                fileFormData.append('file', filePreiview);
+            if (filePreview) {
+                fileFormData.append('file', filePreview);
             }
 
             try {
-                await actionFn(data, fileFormData);
+                const res = await actionFn(data, fileFormData);
+                if (res.status === 'error') {
+                    showToast('error', res.message);
+                    return;
+                }
                 router.push(`/admin/posts`);
                 router.refresh();
                 showToast('success', tostText);
             } catch (err: any) {
-                const message = err?.response?.data?.message;
+                const message = err?.message;
                 console.error(err);
                 showToast('error', message);
             }
         });
     };
 
+    useEffect(() => {
+        if (filePreview) {
+            try {
+                const url = URL.createObjectURL(filePreview);
+                if (validateFile(filePreview)) {
+                    setImagePath(url);
+                    setValue('preview', url, { shouldDirty: true });
+                }
+            } catch (error: any) {
+                const message = error?.message;
+                console.warn(message);
+                showToast('error', message);
+            }
+        }
+    }, [filePreview, setValue]);
+
     return (
         <>
             <div className="mb-3">
-                <input
-                    type="file"
-                    placeholder="загрузить превью"
-                    // value={filePreiview?.name ?? ''}
-                    onChange={(e) => {
-                        if (e.target.files?.length) {
-                            console.log(filePreiview);
-                            setFilePreview(e.target.files[0]);
-                        }
-                    }}
+                <ButtonUploader
+                    file={imagePath}
+                    onChange={(file) => setFilePreview(file)}
+                    text="Загрузить превью"
                 />
             </div>
+            {imagePath && (
+                <Image
+                    src={imagePath ?? ''}
+                    alt={initialValues?.title || 'Preview'}
+                    width={400}
+                    height={300}
+                />
+            )}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3 flex justify-between">
                     <Switch

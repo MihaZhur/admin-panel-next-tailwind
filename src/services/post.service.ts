@@ -50,22 +50,26 @@ class PostService {
         if (!post) {
             return notFound();
         }
-        const { title, content, published, categories } = post;
-        return { title, content, published, categories: categories.map((category) => String(category.id)) };
+        const { title, content, published, categories, preview } = post;
+        return { title, content, published, preview, categories: categories.map((category) => String(category.id)) };
     }
-    async editPost(id: number, { categories, ...data }: ValidationPostSchemaType, pathImage?: string) {
+    async editPost(id: number, { categories, ...data }: ValidationPostSchemaType, file?: File) {
         try {
-            // Получаем текущий пост, чтобы узнать текущий путь к изображению
             const currentPost = await this.prismaClient.post.findUnique({
-                where: {
-                    id: +id,
-                },
+                where: { id },
             });
 
+            let pathImage = currentPost?.preview;
+
+            if (file) {
+                pathImage = await this.uploadService.uploadFile(file, 'posts');
+                if (currentPost?.preview) {
+                    await this.uploadService.deleteFile(currentPost.preview);
+                }
+            }
+
             const post = await this.prismaClient.post.update({
-                where: {
-                    id: +id,
-                },
+                where: { id },
                 data: {
                     ...data,
                     categories: {
@@ -74,40 +78,65 @@ class PostService {
                     preview: pathImage,
                 },
             });
-            // Если новое изображение задано и отличается от текущего, удаляем старое изображение
-            if (pathImage && currentPost?.preview && currentPost.preview !== pathImage) {
-                await this.uploadService.deleteFile(currentPost.preview);
-            }
+
             return post;
-        } catch (error) {
+        } catch (error: any) {
             console.error('Ошибка при редактировании поста:', error);
-            throw new Error('Ошибка при редактировании поста');
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при редактировании поста');
         }
     }
 
-    async createPost(authorId: number, { categories, ...data }: ValidationPostSchemaType, fileName?: string) {
-        const post = await this.prismaClient.post.create({
-            data: {
-                categories: {
-                    connect: categories?.map((category) => {
-                        return { id: Number(category) };
-                    }),
+    async createPost(authorId: number, { categories, ...data }: ValidationPostSchemaType, file?: File) {
+        try {
+            let pathImage;
+            if (file) {
+                pathImage = await this.uploadService.uploadFile(file, 'posts');
+            }
+
+            const post = await this.prismaClient.post.create({
+                data: {
+                    categories: {
+                        connect: categories?.map((category) => ({ id: Number(category) })),
+                    },
+                    authorId,
+                    ...data,
+                    preview: pathImage,
                 },
-                preview: fileName,
-                authorId,
-                ...data,
-            },
-        });
-        return post;
+            });
+
+            return post;
+        } catch (error: any) {
+            console.error('Ошибка при создании поста:', error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при создании поста');
+        }
     }
 
     async deletePostById(id: number) {
-        const deletedPost = await this.prismaClient.post.delete({
-            where: {
-                id,
-            },
-        });
-        return deletedPost;
+        try {
+            const currentPost = await this.prismaClient.post.findUnique({
+                where: { id },
+            });
+
+            if (!currentPost) {
+                throw new Error('Пост не найден');
+            }
+
+            await this.prismaClient.post.delete({
+                where: { id },
+            });
+
+            if (currentPost.preview) {
+                await this.uploadService.deleteFile(currentPost.preview);
+            }
+
+            console.log(`Пост с id ${id} успешно удален`);
+        } catch (error: any) {
+            console.error('Ошибка при удалении поста:', error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при удалении поста');
+        }
     }
 }
 

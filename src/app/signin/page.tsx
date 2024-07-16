@@ -1,5 +1,5 @@
 import { FormLogin } from '@/components';
 
-export default function SignInPage() {
+export default function SignIn() {
     return <FormLogin />;
 }

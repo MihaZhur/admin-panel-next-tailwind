@@ -1,15 +1,14 @@
 'use client';
-import { FieldError } from '@/app/(admin)/admin/components';
 import { loginSchema, ValidationLoginSchemaType } from '@/schemas/login-schema';
 import { showToast } from '@/utils/show-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input } from '@nextui-org/react';
+import { Button, Input, Link } from '@nextui-org/react';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-
+import { FieldError } from '../common';
 export const FormLogin = () => {
     const router = useRouter();
 
@@ -87,12 +86,12 @@ export const FormLogin = () => {
                                     Пароль
                                 </label>
                                 <div className="text-sm">
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href="/"
                                         className="font-semibold text-indigo-600 hover:text-indigo-500"
                                     >
                                         Забыли пароль?
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                             <div className="mt-2">

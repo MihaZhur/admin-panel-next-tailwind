@@ -5,10 +5,9 @@ import { categoryPostService } from '@/services/category-post.service';
 export const createCategoryPostAction = async (dataCreate: ValidationCategoryPostSchemaType) => {
     try {
         const postData = await categoryPostService.createCategory(dataCreate.name);
-        return { message: 'Категоря успешно создана!', postData };
+        return { message: 'Категоря успешно создана!', postData, status: 'success' };
     } catch (error: any) {
-        console.log(error);
         const message = error.message;
-        return message ? message : 'Неизвестная ошибка';
+        return { message: message ? message : 'Неизвестная ошибка', status: 'error' };
     }
 };
