@@ -4,6 +4,7 @@ import { Providers } from '@/providers/provider';
 import { NextNProgressClient } from '@/components';
 import { NextUIProvider } from '@nextui-org/system';
 import { ToastProvider } from '@/components/';
+import 'react-toastify/dist/ReactToastify.css';
 export const metadata: Metadata = {
     title: 'Шаблон админки Nextjs Prisma',
     description:

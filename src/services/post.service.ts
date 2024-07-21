@@ -45,7 +45,6 @@ class PostService {
                 categories: true,
             },
         });
-        console.log(post);
 
         if (!post) {
             return notFound();
@@ -53,16 +52,23 @@ class PostService {
         const { title, content, published, categories, preview } = post;
         return { title, content, published, preview, categories: categories.map((category) => String(category.id)) };
     }
-    async editPost(id: number, { categories, ...data }: ValidationPostSchemaType, file?: File) {
+    async editPost(id: number, { categories, ...data }: ValidationPostSchemaType, file?: File | null | '') {
         try {
             const currentPost = await this.prismaClient.post.findUnique({
                 where: { id },
             });
+            console.log(currentPost, `file: ${file}`);
 
             let pathImage = currentPost?.preview;
 
             if (file) {
                 pathImage = await this.uploadService.uploadFile(file, 'posts');
+                if (currentPost?.preview) {
+                    await this.uploadService.deleteFile(currentPost.preview);
+                }
+            }
+            if (file === '') {
+                pathImage = null;
                 if (currentPost?.preview) {
                     await this.uploadService.deleteFile(currentPost.preview);
                 }

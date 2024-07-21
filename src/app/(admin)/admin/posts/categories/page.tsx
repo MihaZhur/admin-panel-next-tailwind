@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BodyPage, HeadPage, TablePostCategoryes } from '../../components';
+import { BodyPage, HeadPage, TablePostCategoryes } from '../../../../../components/admin';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { categoryPostService } from '@/services/category-post.service';
 

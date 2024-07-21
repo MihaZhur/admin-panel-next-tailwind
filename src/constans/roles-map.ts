@@ -1,6 +1,7 @@
+import { Role } from '@prisma/client';
+
 export const rolesMap = {
-    ADMIN: 'Администратор',
-    USER: 'Пользователь',
-    MANAGER: 'Менеджер',
-    SUPERADMIN: 'Суперадмин',
+    [Role.ADMIN]: 'Администратор',
+    [Role.USER]: 'Пользователь',
+    [Role.MANAGER]: 'Менеджер',
 } as const;

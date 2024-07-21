@@ -1,7 +1,6 @@
 'use server';
 import { ValidationPostSchemaType } from '@/schemas/post-schema';
 import { postService } from '@/services/post.service';
-import { uploadService } from '@/services/upload.service';
 
 export const updatedPostAction = async (id: string, dataUpdate: ValidationPostSchemaType, file: FormData) => {
     try {

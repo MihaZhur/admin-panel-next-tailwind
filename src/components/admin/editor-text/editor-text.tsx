@@ -28,7 +28,7 @@ export const EditorText: React.FC<EditorTextProps> = ({ control, name, defaultVa
                         options={autofocusNoSpellcheckerOptions}
                         value={value}
                         onChange={onChange}
-                        className="dark:bg-slate-700"
+                        className="dark:bg-slate-700 w-full"
                         textareaProps={{
                             className: 'dark:bg-slate-700',
                         }}

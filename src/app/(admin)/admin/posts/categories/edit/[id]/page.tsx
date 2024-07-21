@@ -1,5 +1,5 @@
 import { GoBack } from '@/components';
-import { BodyPage, FormCategoryPost } from '../../../../components/';
+import { BodyPage, FormCategoryPost } from '../../../../../../../components/admin';
 import { updateCategoryPostAction } from './action';
 import { categoryPostService } from '@/services/category-post.service';
 

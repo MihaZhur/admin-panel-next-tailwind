@@ -1,8 +1,7 @@
-import Link from 'next/link';
-import { BodyPage, TablePosts } from '../components';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { BodyPage, TablePosts } from '@/components/';
+
 import { postService } from '@/services/post.service';
-import { HeadPage } from '../components/body-page';
+import { HeadPage } from '@/components/';
 import { redirect } from 'next/navigation';
 import { routes } from '@/constans/routes';
 

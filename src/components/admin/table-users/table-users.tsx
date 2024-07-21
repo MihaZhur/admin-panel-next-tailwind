@@ -59,7 +59,7 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
     const generateColumn = (post: User, columnKey: any) => {
         switch (columnKey) {
             case 'update':
-                return <Link href={'/admin/user/edit/' + post.id}>Редактировать</Link>;
+                return <Link href={'/admin/users/edit/' + post.id}>Редактировать</Link>;
             case 'delete':
                 return (
                     <Button

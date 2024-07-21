@@ -51,5 +51,4 @@ enum Role {
   USER
   ADMIN
   MANAGER
-  SUPERADMIN
 }

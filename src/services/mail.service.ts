@@ -1,11 +1,9 @@
 import { transporter } from '@/configs/nodemailer';
+import { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 class MailService {
-    private transporter;
-
-    constructor() {
-        this.transporter = transporter;
-    }
+    constructor(private readonly transporter: Transporter<SMTPTransport.SentMessageInfo> = transporter) {}
 
     async sendActivationMail(email: string, name: string, activationLink: string) {
         const mailOptions = {
@@ -46,4 +44,4 @@ class MailService {
     }
 }
 
-export const mailService = new MailService();
+export const mailService = new MailService(transporter);

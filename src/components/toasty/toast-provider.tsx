@@ -1,5 +1,4 @@
 'use client';
-import 'react-toastify/dist/ReactToastify.css';
 import { PropsWithChildren } from 'react';
 import { ToastContainer } from 'react-toastify';
 

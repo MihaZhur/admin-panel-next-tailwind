@@ -11,3 +11,17 @@ export { HeaderSite } from './header-site';
 export { SiteLayout } from './layouts';
 export { FieldError } from './common';
 export { ToastProvider } from './toasty';
+export {
+    ButtonSubmit,
+    FormPost,
+    TablePosts,
+    EditorText,
+    BodyPage,
+    HeadPage,
+    TablePostCategoryes,
+    FormCategoryPost,
+    ButtonUploader,
+    ImageUpload,
+    TableUsers,
+    FormUser,
+} from './admin';

@@ -1,14 +1,13 @@
 'use client';
-import { ButtonUploader, EditorText } from '@/app/(admin)/admin/components';
+import { ButtonUploader, EditorText } from '@/components/admin';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Select, SelectItem, Switch } from '@nextui-org/react';
+import { Button, Divider, Input, Select, SelectItem, Switch } from '@nextui-org/react';
 import { showToast } from '@/utils/show-toast';
 import { postSchema, ValidationPostSchemaType } from '@/schemas/post-schema';
 import { CategoryPost } from '@prisma/client';
-import Image from 'next/image';
 import { validateFile } from '@/utils/validate-file';
 import { FieldError } from '@/components';
 interface Props {
@@ -31,7 +30,7 @@ export const FormPost: React.FC<Props> = ({
     tostText = 'Пост успешно создан!',
     categories,
 }) => {
-    const [filePreview, setFilePreview] = useState<File>();
+    const [filePreview, setFilePreview] = useState<File | null>(null);
     const [imagePath, setImagePath] = useState<string | null>(initialValues?.preview ?? null);
 
     const router = useRouter();
@@ -49,10 +48,7 @@ export const FormPost: React.FC<Props> = ({
     const onSubmit = async (data: ValidationPostSchemaType) => {
         startIsPendingCreatePost(async () => {
             const fileFormData = new FormData();
-            if (filePreview) {
-                fileFormData.append('file', filePreview);
-            }
-
+            fileFormData.append('file', filePreview === null ? '' : filePreview);
             try {
                 const res = await actionFn(data, fileFormData);
                 if (res.status === 'error') {
@@ -70,39 +66,27 @@ export const FormPost: React.FC<Props> = ({
         });
     };
 
-    useEffect(() => {
-        if (filePreview) {
-            try {
-                const url = URL.createObjectURL(filePreview);
-                if (validateFile(filePreview)) {
-                    setImagePath(url);
-                    setValue('preview', url, { shouldDirty: true });
-                }
-            } catch (error: any) {
-                const message = error?.message;
-                console.warn(message);
-                showToast('error', message);
+    const handleChangeImage = (file: File | null) => {
+        try {
+            if (file === null) {
+                setValue('preview', null, { shouldDirty: true });
+                setFilePreview(null);
+                return;
             }
+            const url = URL.createObjectURL(file);
+            if (validateFile(file)) {
+                setImagePath(url);
+                setFilePreview(file);
+                setValue('preview', url, { shouldDirty: true });
+            }
+        } catch (error: any) {
+            const message = error?.message;
+            console.warn(message);
+            showToast('error', message);
         }
-    }, [filePreview, setValue]);
-
+    };
     return (
         <>
-            <div className="mb-3">
-                <ButtonUploader
-                    file={imagePath}
-                    onChange={(file) => setFilePreview(file)}
-                    text="Загрузить превью"
-                />
-            </div>
-            {imagePath && (
-                <Image
-                    src={imagePath ?? ''}
-                    alt={initialValues?.title || 'Preview'}
-                    width={400}
-                    height={300}
-                />
-            )}
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3 flex justify-between">
                     <Switch
@@ -131,6 +115,7 @@ export const FormPost: React.FC<Props> = ({
                                     <SelectItem
                                         key={category.id}
                                         value={category.id.toString()}
+                                        className="dark:text-white"
                                     >
                                         {category.name}
                                     </SelectItem>
@@ -139,42 +124,67 @@ export const FormPost: React.FC<Props> = ({
                         )}
                     />
                 </div>
-                <label
-                    htmlFor="title"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                    Название поста
-                </label>
-                <Input
-                    {...register('title')}
-                    type="text"
-                    id="title"
-                    label="Название поста"
-                    className="mb-3"
-                    color={errors.title?.message ? 'danger' : 'default'}
-                />
-                <FieldError error={errors.title?.message} />
-                <label
-                    htmlFor="content"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                    Контент поста
-                </label>
-                <EditorText
-                    control={control}
-                    name="content"
-                    defaultValue={initialValues?.content ?? ''}
-                />
 
-                <Button
-                    type="submit"
-                    color="primary"
-                    variant="solid"
-                    isDisabled={!isDirty}
-                    isLoading={isPendingCreatePost}
-                >
-                    {btnText}
-                </Button>
+                <div className="flex gap-4 justify-between">
+                    <div className="mb-3">
+                        <label
+                            htmlFor="title"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Превью поста
+                        </label>
+                        <ButtonUploader
+                            file={filePreview}
+                            onChange={handleChangeImage}
+                            onImageDelete={() => {
+                                setValue('preview', null, { shouldDirty: true });
+                                setImagePath(null);
+                            }}
+                            text="Загрузить превью"
+                            imagePath={imagePath}
+                        />
+                    </div>
+                    <div className="w-full">
+                        <label
+                            htmlFor="title"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Название поста
+                        </label>
+                        <Input
+                            {...register('title')}
+                            type="text"
+                            id="title"
+                            label="Название поста"
+                            className="mb-3"
+                            color={errors.title?.message ? 'danger' : 'default'}
+                        />
+                        <FieldError error={errors.title?.message} />
+                        <label
+                            htmlFor="content"
+                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                        >
+                            Контент поста
+                        </label>
+                        <EditorText
+                            control={control}
+                            name="content"
+                            defaultValue={initialValues?.content ?? ''}
+                        />
+                    </div>
+                </div>
+                <Divider className="my-3" />
+                <div className="flex justify-start">
+                    <Button
+                        type="submit"
+                        color="primary"
+                        variant="solid"
+                        isDisabled={!isDirty}
+                        isLoading={isPendingCreatePost}
+                    >
+                        {btnText}
+                    </Button>
+                </div>
             </form>
         </>
     );

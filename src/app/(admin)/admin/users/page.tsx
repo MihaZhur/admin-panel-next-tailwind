@@ -1,9 +1,6 @@
-import Link from 'next/link';
-import { UserPlusIcon } from '@heroicons/react/20/solid';
-import { TableUsers } from '../components/table-users/table-users';
+import { BodyPage, HeadPage } from '@/components';
+import { TableUsers } from '@/components';
 import { userService } from '@/services/user.service';
-import { BodyPage } from '../components';
-import { HeadPage } from '../components/body-page';
 
 export default async function Users({
     searchParams,
@@ -22,7 +19,7 @@ export default async function Users({
             <HeadPage
                 title="Пользователи"
                 linkTitle="Создать пользователя"
-                link={'/admin/posts/create'}
+                link={'/admin/users/create'}
             />
 
             <TableUsers

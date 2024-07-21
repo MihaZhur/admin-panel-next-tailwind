@@ -1,8 +1,11 @@
 import prisma from '@/lib/db';
+import { ValidationUserSchemaType } from '@/schemas/user-schema';
 import { PrismaClient } from '@prisma/client';
+import { notFound } from 'next/navigation';
 
 class UserService {
     LIMIT_ITEMS_PAGE = 10;
+    userUserAction: any;
     constructor() {}
 
     async getUserById(id: number) {
@@ -11,6 +14,9 @@ class UserService {
                 id: id,
             },
         });
+        if (!user) {
+            return notFound();
+        }
         return user;
     }
 
@@ -64,6 +70,51 @@ class UserService {
             totalPages,
             total,
         };
+    }
+    async createUser(data: ValidationUserSchemaType) {
+        try {
+            const candidate = await this.getUserByEmail(data.email);
+            if (candidate) {
+                throw new Error('Пользователь с таким email уже существует');
+            }
+            const newUser = await prisma.user.create({
+                data: {
+                    name: data.name,
+                    email: data.email,
+                    activated: data.activated,
+                    role: data.role,
+                },
+            });
+            return newUser;
+        } catch (error: any) {
+            console.error('Ошибка при создании пользователя:', error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при создании пользователя');
+        }
+    }
+
+    async updateUser(id: number, data: ValidationUserSchemaType) {
+        try {
+            const updatedUser = await prisma.user.update({
+                where: { id: id },
+                data: {
+                    name: data.name,
+                    activated: data.activated,
+                    role: data.role,
+                },
+            });
+            return updatedUser;
+        } catch (error: any) {
+            console.error('Ошибка при обновлении пользователя:', error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при обновлении пользователя');
+        }
+    }
+    async deleteUser(id: number) {
+        const deletedUser = await prisma.user.delete({
+            where: { id: id },
+        });
+        return deletedUser;
     }
 }
 
