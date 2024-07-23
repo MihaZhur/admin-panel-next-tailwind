@@ -25,3 +25,5 @@ export {
     TableUsers,
     FormUser,
 } from './admin';
+
+export { FormRefreshPassword } from './form-refresh-password';

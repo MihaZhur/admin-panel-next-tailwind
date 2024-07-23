@@ -37,7 +37,6 @@ export const FormUser: React.FC<Props> = ({ action, initialValues, btnText = 'С
 
     const onSubmit = async (data: ValidationUserSchemaType) => {
         if (!action) return;
-
         startIsPendingCreateUser(async () => {
             try {
                 const res = await action(data);
@@ -62,16 +61,16 @@ export const FormUser: React.FC<Props> = ({ action, initialValues, btnText = 'С
                 <Controller
                     name="role"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field: { value, onChange } }) => (
                         <Select
                             isRequired
                             label="Роль пользователя"
                             placeholder="Выберите роль пользователя"
                             className="max-w-xs"
-                            defaultSelectedKeys={[initialValues?.role || 'USER']}
-                            onSelectionChange={(selected) => {
-                                field.onChange(Array.from(selected)[0]);
-                            }}
+                            value={value}
+                            defaultSelectedKeys={[value]}
+                            disabledKeys={Object.keys(rolesMap).filter((role) => role === 'ADMIN')}
+                            onSelectionChange={(selected) => onChange(Array.from(selected)[0])}
                         >
                             {Object.keys(rolesMap).map((role) => {
                                 const key = role as keyof typeof rolesMap;

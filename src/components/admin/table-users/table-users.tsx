@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useTransition } from 'react';
 import {
     Table,
     TableHeader,
@@ -15,11 +15,12 @@ import {
 } from '@nextui-org/react';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useDeletePost } from '@/hooks/admin/useDeletePost';
 import { Modal } from '../modal';
 import { useCreateQueryString } from '@/hooks/useCreateQueryString';
 import { rolesMap } from '@/constans/roles-map';
 import { User } from '@/types/user';
+import { deleteUserByIdAction } from './action';
+import { showToast } from '@/utils/show-toast';
 
 interface Props {
     users: User[];
@@ -34,22 +35,34 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
     const searchParams = useSearchParams();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const createQueryString = useCreateQueryString(searchParams);
-
-    const { mutateAsync, isPending } = useDeletePost();
+    const [isPendingDelete, startIsPendingDelete] = useTransition();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const handleDeletePost = async (id: string | number) => {
-        const findPost = users.find((post) => post.id === id);
-        if (findPost) {
-            setCurrentUser(findPost);
+    const handleDeleteUser = async (id: string | number) => {
+        const findUser = users.find((user) => user.id === id);
+        if (findUser) {
+            setCurrentUser(findUser);
         }
         onOpen();
     };
     const handleConfirm = async () => {
-        if (currentUser) {
-            await mutateAsync(currentUser?.id);
-        }
-        onClose();
-        router.refresh();
+        startIsPendingDelete(async () => {
+            try {
+                if (currentUser) {
+                    const res = await deleteUserByIdAction(currentUser?.id);
+                    if (res.status === 'error') {
+                        showToast(res.status as any, res.message);
+                        return;
+                    }
+                    showToast(res.status as any, res.message);
+                }
+                onClose();
+                router.refresh();
+            } catch (error: any) {
+                console.error('Ошибка при обновлении пользователя:', error);
+                const message = error.message;
+                showToast('error', message);
+            }
+        });
     };
 
     const handleChangePage = (page: number) => {
@@ -66,7 +79,7 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
                         color="danger"
                         variant="bordered"
                         size="sm"
-                        onClick={() => handleDeletePost(post.id)}
+                        onClick={() => handleDeleteUser(post.id)}
                     >
                         Удалить
                     </Button>
@@ -127,7 +140,7 @@ export const TableUsers: React.FC<Props> = ({ users, total, currentPage }) => {
                 onConfirm={handleConfirm}
                 textClose="Отмена"
                 textConfirm="Удалить"
-                isLoadingConfirm={isPending}
+                isLoadingConfirm={isPendingDelete}
             ></Modal>
         </>
     );

@@ -34,15 +34,22 @@ export const registrationUser = async (data: ValidationRegistrationSchemaType) =
             throw new CustomError('Слишком короткий пароль', 400);
         }
         const { password, email, name } = data;
-        type OmitUserCreate = Omit<User, 'id' | 'role' | 'activated' | 'refresh_password'>;
+        interface UserCreate {
+            email: string;
+            name: string | null;
+            password: string | null;
+            activated: boolean;
+            code_activated: string | null;
+        }
 
         const hashCode = uuidv4();
 
-        const userDataHash: OmitUserCreate = {
+        const userDataHash: UserCreate = {
             email,
             name,
             password: await hash(password, Number(process.env.NEXT_PUBLIC_SALT_HASH)),
             code_activated: hashCode,
+            activated: false,
         };
 
         const activatedLink = routes.activated + hashCode;

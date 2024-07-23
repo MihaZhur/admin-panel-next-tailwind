@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldError } from '../common';
+
 export const FormLogin = () => {
     const router = useRouter();
 
@@ -86,12 +87,12 @@ export const FormLogin = () => {
                                     Пароль
                                 </label>
                                 <div className="text-sm">
-                                    <Link
-                                        href="/"
-                                        className="font-semibold text-indigo-600 hover:text-indigo-500"
+                                    <button
+                                        type="button"
+                                        className="font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500"
                                     >
                                         Забыли пароль?
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                             <div className="mt-2">

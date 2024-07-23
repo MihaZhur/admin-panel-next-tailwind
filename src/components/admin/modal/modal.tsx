@@ -8,6 +8,7 @@ interface Props {
     textClose?: string;
     title?: string;
     isLoadingConfirm?: boolean;
+    isFooter?: boolean;
 }
 
 export const Modal: React.FC<PropsWithChildren<Props>> = ({
@@ -19,6 +20,7 @@ export const Modal: React.FC<PropsWithChildren<Props>> = ({
     title,
     children,
     isLoadingConfirm,
+    isFooter = true,
 }) => {
     return (
         <ModalComponent
@@ -31,22 +33,24 @@ export const Modal: React.FC<PropsWithChildren<Props>> = ({
                     <>
                         <ModalHeader className="flex flex-col dark:text-white gap-1">{title}</ModalHeader>
                         <ModalBody>{children}</ModalBody>
-                        <ModalFooter>
-                            <Button
-                                color="primary"
-                                onPress={onConfirm}
-                                isLoading={isLoadingConfirm}
-                            >
-                                {textConfirm}
-                            </Button>
-                            <Button
-                                color="default"
-                                variant="light"
-                                onPress={onClose}
-                            >
-                                {textClose}
-                            </Button>
-                        </ModalFooter>
+                        {isFooter && (
+                            <ModalFooter>
+                                <Button
+                                    color="primary"
+                                    onPress={onConfirm}
+                                    isLoading={isLoadingConfirm}
+                                >
+                                    {textConfirm}
+                                </Button>
+                                <Button
+                                    color="default"
+                                    variant="light"
+                                    onPress={onClose}
+                                >
+                                    {textClose}
+                                </Button>
+                            </ModalFooter>
+                        )}
                     </>
                 )}
             </ModalContent>
