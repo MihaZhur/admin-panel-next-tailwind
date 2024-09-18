@@ -26,4 +26,5 @@ export {
     FormUser,
 } from './admin';
 
+export { FormResetPassword } from './form-reset-password';
 export { FormRefreshPassword } from './form-refresh-password';

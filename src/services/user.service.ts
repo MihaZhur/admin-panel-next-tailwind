@@ -4,6 +4,7 @@ import { PrismaClient, User } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { mailService } from './mail.service';
+import { hash } from 'bcryptjs';
 class UserService {
     LIMIT_ITEMS_PAGE = 10;
     userUserAction: any;
@@ -30,7 +31,14 @@ class UserService {
         return user;
     }
 
-    async getUserByCode(code_activated: string) {
+    async getUserByCodePasswordRefresh(refreshPassword: string) {
+        const user = await this.prismaClient.user.findFirst({
+            where: { refresh_password: refreshPassword },
+        });
+
+        return user;
+    }
+    async getUserByCodeActivation(code_activated: string) {
         const user = await this.prismaClient.user.findFirst({
             where: { code_activated },
         });
@@ -184,7 +192,7 @@ class UserService {
         }
     }
 
-    async refreshPassword(email: string) {
+    async resetPassword(email: string) {
         try {
             const candidate = await this.getUserByEmail(email);
             if (!candidate) {
@@ -199,6 +207,26 @@ class UserService {
                 },
             });
             return token;
+        } catch (error: any) {
+            console.error('Ошибка при обновлении пароля:', error);
+            const message = error.message;
+            throw new Error(message ? message : 'Ошибка при обновлении пароля');
+        }
+    }
+    async refreshPassword(refreshCode: string, newPassword: string) {
+        try {
+            const candidate = await this.getUserByCodePasswordRefresh(refreshCode);
+            if (!candidate) {
+                throw new Error('Пользователь не найден');
+            }
+            await this.prismaClient.user.update({
+                where: { id: candidate.id },
+                data: {
+                    refresh_password: null,
+                    password: await hash(newPassword, Number(process.env.SALT_HASH)),
+                },
+            });
+            return { message: 'Пароль успешно обновлен', status: 'success' };
         } catch (error: any) {
             console.error('Ошибка при обновлении пароля:', error);
             const message = error.message;

@@ -4,7 +4,6 @@ import { routes } from '@/constans/routes';
 import prisma from '@/lib/db';
 import { ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
 import { mailService } from '@/services/mail.service';
-import { User } from '@prisma/client';
 import { hash } from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 class CustomError extends Error {

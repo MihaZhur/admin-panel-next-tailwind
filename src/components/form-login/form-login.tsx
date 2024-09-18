@@ -2,17 +2,19 @@
 import { loginSchema, ValidationLoginSchemaType } from '@/schemas/login-schema';
 import { showToast } from '@/utils/show-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Link } from '@nextui-org/react';
-import { signIn } from 'next-auth/react';
+import { Button, Input, Modal, ModalContent, useDisclosure } from '@nextui-org/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldError } from '../common';
+import { FormResetPassword } from '@/components';
+import { rateLimitValidateAction } from './action';
+import { signIn } from 'next-auth/react';
 
 export const FormLogin = () => {
     const router = useRouter();
-
+    const { onOpen, onClose, isOpen } = useDisclosure();
     const [loginLoading, startRegistartionLoading] = useTransition();
     const {
         register,
@@ -25,13 +27,13 @@ export const FormLogin = () => {
     const onSubmit = (data: ValidationLoginSchemaType) => {
         startRegistartionLoading(async () => {
             try {
+                await rateLimitValidateAction();
                 const res = await signIn('credentials', { ...data, redirect: false });
-                if (res?.ok && !res.error) {
-                    router.push('/');
-                    router.refresh();
-                    return;
+                if (!res?.ok) {
+                    throw new Error(res?.error ?? 'Неизвестная ошибка');
                 }
-                showToast('error', res?.error);
+                router.push('/');
+                router.refresh();
             } catch (err: any) {
                 showToast('error', err.message);
             }
@@ -41,13 +43,15 @@ export const FormLogin = () => {
     return (
         <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 mt-10">
             <div className="sm:mx-auto sm:w-full gap-3 flex justify-center items-center sm:max-w-sm">
-                <Image
-                    width={32}
-                    height={32}
-                    src={'/default/logo.png'}
-                    alt="Logo"
-                    priority
-                />
+                <div className="max-w-8">
+                    <Image
+                        width={32}
+                        height={32}
+                        src={'/default/logo.png'}
+                        alt="Logo"
+                        priority
+                    />
+                </div>
                 <h2 className=" text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Авторизация</h2>
             </div>
 
@@ -88,6 +92,7 @@ export const FormLogin = () => {
                                 </label>
                                 <div className="text-sm">
                                     <button
+                                        onClick={onOpen}
                                         type="button"
                                         className="font-semibold cursor-pointer text-indigo-600 hover:text-indigo-500"
                                     >
@@ -121,6 +126,13 @@ export const FormLogin = () => {
                         </div>
                     </form>
                 </div>
+                <Modal
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    backdrop={'blur'}
+                >
+                    <ModalContent>{() => <FormResetPassword />}</ModalContent>
+                </Modal>
 
                 {/* <p className="mt-10 text-center text-sm text-gray-500">
                     Not a member?

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 export default async function ActivationPage(request: { params: { code_activated: string } }) {
-    const user = await userService.getUserByCode(request.params.code_activated);
+    const user = await userService.getUserByCodeActivation(request.params.code_activated);
 
     if (!user) {
         return notFound();

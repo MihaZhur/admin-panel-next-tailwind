@@ -10,6 +10,7 @@ import { postSchema, ValidationPostSchemaType } from '@/schemas/post-schema';
 import { CategoryPost } from '@prisma/client';
 import { validateFile } from '@/utils/validate-file';
 import { FieldError } from '@/components';
+
 interface Props {
     action: (data: ValidationPostSchemaType, file: any) => Promise<any>;
     initialValues?: {
@@ -32,7 +33,6 @@ export const FormPost: React.FC<Props> = ({
 }) => {
     const [filePreview, setFilePreview] = useState<File | null>(null);
     const [imagePath, setImagePath] = useState<string | null>(initialValues?.preview ?? null);
-
     const router = useRouter();
     const [isPendingCreatePost, startIsPendingCreatePost] = useTransition();
     const {
@@ -85,6 +85,7 @@ export const FormPost: React.FC<Props> = ({
             showToast('error', message);
         }
     };
+
     return (
         <>
             <form onSubmit={handleSubmit(onSubmit)}>

@@ -17,7 +17,7 @@ export default async function EditPost({ params }: { params: { id: string } }) {
         preview,
     } = await postService.getPostById(+params.id);
 
-    const { categories } = await categoryPostService.getCategories({ currentPage: 1 });
+    const categories = await categoryPostService.getAllCategories();
     return (
         <BodyPage>
             <GoBack />

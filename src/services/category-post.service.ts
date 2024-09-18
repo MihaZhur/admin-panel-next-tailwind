@@ -33,6 +33,14 @@ class CategoryPostService {
             totalPages,
         };
     }
+    async getAllCategories() {
+        try {
+            return await this.prismaClient.categoryPost.findMany();
+        } catch (error: any) {
+            console.error('Ошибка при получении категорий:', error);
+            throw new Error(error.message);
+        }
+    }
 
     async getCategoryById(id: number) {
         const category = await this.prismaClient.categoryPost.findUnique({

@@ -30,11 +30,11 @@ class MailService {
             to: email,
             replyTo: email,
             subject: 'Запрос на сброс пароля',
-            text: `
+            html: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                     <h2>Здравствуйте, ${name}</h2>
                     <p>Мы получили запрос на сброс вашего пароля. Пожалуйста, нажмите на ссылку ниже, чтобы сбросить ваш пароль:</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL + resetLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none;">Сбросить пароль</a>
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL + '/refresh-password/' + resetLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none;">Сбросить пароль</a>
                     <p>Если вы не запрашивали сброс пароля, пожалуйста, проигнорируйте это письмо.</p>
                 </div>
             `,
