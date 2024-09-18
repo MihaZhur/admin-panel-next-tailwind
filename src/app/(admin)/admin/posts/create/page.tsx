@@ -1,5 +1,5 @@
 import { GoBack } from '@/components';
-import { BodyPage, FormPost } from '../../components';
+import { BodyPage, FormPost } from '@/components';
 import { cretePostAction } from './action';
 import { getServerSession } from 'next-auth';
 import { authConfig } from '@/configs/auth';
@@ -7,7 +7,7 @@ import { categoryPostService } from '@/services/category-post.service';
 
 export default async function Create() {
     const session = await getServerSession(authConfig);
-    const { categories } = await categoryPostService.getCategories({ currentPage: 1 });
+    const categories = await categoryPostService.getAllCategories();
     return (
         <BodyPage>
             <GoBack />

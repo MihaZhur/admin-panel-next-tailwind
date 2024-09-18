@@ -4,8 +4,7 @@ import { routes } from '@/constans/routes';
 import prisma from '@/lib/db';
 import { ValidationRegistrationSchemaType } from '@/schemas/registration-schema';
 import { mailService } from '@/services/mail.service';
-import { User } from '@prisma/client';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 class CustomError extends Error {
     statusCode: number;
@@ -34,15 +33,22 @@ export const registrationUser = async (data: ValidationRegistrationSchemaType) =
             throw new CustomError('Слишком короткий пароль', 400);
         }
         const { password, email, name } = data;
-        type OmitUserCreate = Omit<User, 'id' | 'role' | 'activated' | 'refresh_password'>;
+        interface UserCreate {
+            email: string;
+            name: string | null;
+            password: string | null;
+            activated: boolean;
+            code_activated: string | null;
+        }
 
         const hashCode = uuidv4();
 
-        const userDataHash: OmitUserCreate = {
+        const userDataHash: UserCreate = {
             email,
             name,
             password: await hash(password, Number(process.env.NEXT_PUBLIC_SALT_HASH)),
             code_activated: hashCode,
+            activated: false,
         };
 
         const activatedLink = routes.activated + hashCode;

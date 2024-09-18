@@ -33,6 +33,14 @@ class CategoryPostService {
             totalPages,
         };
     }
+    async getAllCategories() {
+        try {
+            return await this.prismaClient.categoryPost.findMany();
+        } catch (error: any) {
+            console.error('Ошибка при получении категорий:', error);
+            throw new Error(error.message);
+        }
+    }
 
     async getCategoryById(id: number) {
         const category = await this.prismaClient.categoryPost.findUnique({
@@ -58,10 +66,10 @@ class CategoryPostService {
         return deletedCategory;
     }
 
-    async updateCategory(id: number, name: string) {
+    async updateCategory(id: number, { name, preview }: { name: string; preview?: string }) {
         const category = await this.prismaClient.categoryPost.update({
             where: { id },
-            data: { name },
+            data: { name, preview },
         });
         return category;
     }

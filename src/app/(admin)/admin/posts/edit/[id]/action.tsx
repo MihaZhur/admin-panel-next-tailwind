@@ -2,12 +2,16 @@
 import { ValidationPostSchemaType } from '@/schemas/post-schema';
 import { postService } from '@/services/post.service';
 
-export const updatedPostAction = async (id: string, dataUpdate: ValidationPostSchemaType) => {
+export const updatedPostAction = async (id: string, dataUpdate: ValidationPostSchemaType, file: FormData) => {
     try {
-        await postService.editPost(+id, dataUpdate);
-        return { message: 'Пост успешно отредактирован!' };
+        const fileData = file.get('file') as File;
+        await postService.editPost(+id, dataUpdate, fileData);
+        return { message: 'Пост успешно отредактирован!', status: 'success' };
     } catch (error: any) {
         const message = error.message;
-        return message ? message : 'Неизвестная ошибка';
+        return {
+            message: message ? message : 'Неизвестная ошибка',
+            status: 'error',
+        };
     }
 };

@@ -1,11 +1,9 @@
 import { transporter } from '@/configs/nodemailer';
+import { Transporter } from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 class MailService {
-    private transporter;
-
-    constructor() {
-        this.transporter = transporter;
-    }
+    constructor(private readonly transporter: Transporter<SMTPTransport.SentMessageInfo> = transporter) {}
 
     async sendActivationMail(email: string, name: string, activationLink: string) {
         const mailOptions = {
@@ -32,11 +30,11 @@ class MailService {
             to: email,
             replyTo: email,
             subject: 'Запрос на сброс пароля',
-            text: `
+            html: `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                     <h2>Здравствуйте, ${name}</h2>
                     <p>Мы получили запрос на сброс вашего пароля. Пожалуйста, нажмите на ссылку ниже, чтобы сбросить ваш пароль:</p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL + resetLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none;">Сбросить пароль</a>
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL + '/refresh-password/' + resetLink}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none;">Сбросить пароль</a>
                     <p>Если вы не запрашивали сброс пароля, пожалуйста, проигнорируйте это письмо.</p>
                 </div>
             `,
@@ -46,4 +44,4 @@ class MailService {
     }
 }
 
-export const mailService = new MailService();
+export const mailService = new MailService(transporter);
